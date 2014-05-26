@@ -7,6 +7,19 @@
 
 import sys
 from PyQt4 import QtCore, QtGui, QtWebKit
+from treeview import TreeViewModel, Node
+
+class MenuTree(QtGui.QTreeView):
+    def __init__(self, *args, **kwargs):
+        QtGui.QTreeView.__init__(self, *args, **kwargs)
+        self.test_tree()
+    
+    def test_tree(self):
+        self.rootNode = Node("Rootdir")
+        model = TreeViewModel(self.rootNode)
+        self.setModel(model)
+        self.rootNode.addChild(Node('Hey'))
+         
 
 class Browser(QtGui.QMainWindow):
 
@@ -41,9 +54,14 @@ class Browser(QtGui.QMainWindow):
         self.horizontalLayout.addWidget(self.bt_ahead)
         self.horizontalLayout.addWidget(self.tb_url)
         self.gridLayout.addLayout(self.horizontalLayout)
-
+        
+        self.horizontalMainLayout = QtGui.QHBoxLayout()
+        self.gridLayout.addLayout(self.horizontalMainLayout)
+        #
+        self.menu = MenuTree()
         self.html = QtWebKit.QWebView()
-        self.gridLayout.addWidget(self.html)
+        self.horizontalMainLayout.addWidget(self.menu)
+        self.horizontalMainLayout.addWidget(self.html)
         self.mainLayout.addWidget(self.frame)
         self.setCentralWidget(self.centralwidget)
 

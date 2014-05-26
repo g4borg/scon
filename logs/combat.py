@@ -19,14 +19,8 @@
     The typical log entry
 """
 import re
+from base import Log
 
-class Log(object):
-    matcher = None
-    
-    @classmethod
-    def is_handler(cls, log):
-        return False
-    
 class CombatLog(Log):
     @classmethod
     def _log_handler(cls, log):
@@ -134,6 +128,7 @@ class GameEvent(CombatLog):
     
     def unpack(self):
         # unpacks the data from the values.
+        # small override to remove trailing "="s in the matching.
         if hasattr(self, 'matcher') and self.matcher:
             matchers = self.matcher
             if not isinstance(matchers, list):

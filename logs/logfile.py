@@ -18,13 +18,17 @@ class LogFile(object):
         self.folder = folder # only for custom tagging.
         self.lines = []
         self._data = None
-        if self.fname is not None:
-            self.open(self.fname)
     
-    def open(self, fname):
-        f = open(fname, 'r')
-        self._data = f.read()
-        f.close()
+    def read(self, fname=None):
+        fname = fname or self.fname
+        try:
+            f = open(fname, 'r')
+            self._data = f.read()
+        finally:
+            f.close()
+        
+    def set_data(self, data):
+        self._data = data
     
     def parse(self):
         # parse _data if we still have no lines.

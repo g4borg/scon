@@ -64,6 +64,7 @@ if __name__ == '__main__':
     #f = open('output.txt', 'w')
     rex = {}
     for logf in logfiles:
+        logf.read()
         logf.parse()
         for l in logf.lines:
             if isinstance(l, dict):
