@@ -20,7 +20,11 @@ from logs.logresolver import LogFileResolver as LogFile
 from logs import combat
 
 # for windows its kinda this:
-settings = {'logfiles': os.path.join(os.path.expanduser('~'),
+settings = {'root_path': os.path.join(os.path.expanduser('~'),
+                                     'Documents',
+                                     'My Games',
+                                     'StarConflict',),            
+            'logfiles': os.path.join(os.path.expanduser('~'),
                                      'Documents',
                                      'My Games',
                                      'StarConflict',

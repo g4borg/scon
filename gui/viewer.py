@@ -4,10 +4,15 @@
     Viewer - starts a webbrowser which is coupled to a local renderer
     
 """
-
+import os
+os.environ['DJANGO_SETTINGS_MODULE'] = 'scon.dj.settings' 
+#from django.core.management  import setup_environ
+#from scon.dj import settings
+#setup_environ(settings)
 import sys
-from PyQt4 import QtCore, QtGui, QtWebKit
+from PyQt4 import QtCore, QtGui, QtWebKit, QtNetwork
 from treeview import TreeViewModel, Node
+from localbrowser import LocalWebView
 
 class MenuTree(QtGui.QTreeView):
     def __init__(self, *args, **kwargs):
@@ -58,9 +63,9 @@ class Browser(QtGui.QMainWindow):
         self.horizontalMainLayout = QtGui.QHBoxLayout()
         self.gridLayout.addLayout(self.horizontalMainLayout)
         #
-        self.menu = MenuTree()
-        self.html = QtWebKit.QWebView()
-        self.horizontalMainLayout.addWidget(self.menu)
+        #self.menu = MenuTree()
+        self.html = LocalWebView(basedir='D:/work/workspace/scon/src/scon/dj/scon/media/')
+        #self.horizontalMainLayout.addWidget(self.menu)
         self.horizontalMainLayout.addWidget(self.html)
         self.mainLayout.addWidget(self.frame)
         self.setCentralWidget(self.centralwidget)
@@ -70,6 +75,7 @@ class Browser(QtGui.QMainWindow):
         self.connect(self.bt_ahead, QtCore.SIGNAL("clicked()"), self.html.forward)
 
         self.tb_url.setText('Search...')
+        
         self.browse()
 
     def browse(self):
@@ -80,14 +86,15 @@ class Browser(QtGui.QMainWindow):
 
         #url = self.tb_url.text() if self.tb_url.text() else self.default_url
         #self.html.load(QtCore.QUrl(url))
-        self.html.setHtml(self.serve())
+        #self.html.setHtml(self.serve())
+        self.html.load(QtCore.QUrl('page:///admin/'))
         self.html.show()
         
     def serve(self, what=None):
         return "<html><body><h1>It works!</h1></body></html>"
 
 if __name__ == "__main__":
-
+    
     app = QtGui.QApplication(sys.argv)
     main = Browser()
     main.show()
