@@ -27,11 +27,16 @@ class DejaNetworkAccessManager(QtNetwork.QNetworkAccessManager):
     '''
         The Deja Network Access Manager provides access to two new protocols:
         - page:/// tries to resolve a page internally via a django test client.
-        - res:/// access to a resource.
+        - res:/// direct access to a resource.
+        
+        USE_NETWORK delegates to other network access manager protocols, if False, it will not
+        allow any requests outside these two protocols 
+        (hopefully disabling network access for your internal browser)
         
         Note, if page does not find the page, a res:/// attempt is made automatically.
         This has to be expanded!
-         
+        
+        Note2: not sure if cookies and sessions will work this way!
     '''
     USE_NETWORK = False
     def __init__(self, parent=None, basedir=None):
@@ -112,9 +117,9 @@ class PageReply(BasePageReply):
     def initialize_content(self, url, operation):
         c = Client()
         print "Response for %s, method %s" % (url.path(), operation)
-        if operation == LocalNetworkAccessManager.GetOperation:
+        if operation == DejaNetworkAccessManager.GetOperation:
             response = c.get(unicode(url.path()), )
-        elif operation == LocalNetworkAccessManager.PostOperation:
+        elif operation == DejaNetworkAccessManager.PostOperation:
             response = c.post(unicode(url.path()))
         # response code
         print "Response Status: %s" % response.status_code
@@ -132,18 +137,23 @@ class NoNetworkReply(BasePageReply):
             </html>
         '''
 
-class ImageReply(BasePageReply):
+class ResourceReply(BasePageReply):
     content_type = 'image/png'
+    
     def __init__(self, parent, url, operation, basedir):
         self.basedir = basedir
         BasePageReply.__init__(self, parent, url, operation)
+    
+    def determine_content_type(self, path):
+        return self.content_type
         
     def initialize_content(self, url, operation):
         path = os.path.join(self.basedir, unicode(url.path()).lstrip('/'))
         if not os.path.exists(path):
             logging.error('Image does not exist: %s' % path)
             return ''
-        h = url.host()
+        #h = url.host()
+        # @todo: host checks?
         try:
             f = open(path, 'rb')
             return f.read()
