@@ -1,0 +1,60 @@
+{% extends "scon/base.html" %}
+
+{% block context %}
+<img src="{{MEDIA_URL}}scon/conflict-logo.png" style="float:right;">
+<h1>Star Conflict Crafting Cheat Sheet</h1>
+<table>
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th style="width: 1em;">&nbsp;</th>
+			<th>Crafts to</th>
+			<th>Also used in Crafting</th>
+		</tr>
+	</thead>
+	<tbody>
+	{% for item in items %}
+	{% if item.primary_recipee %}
+	<tr>
+		<td>
+		<div class="panel item">
+		{% if item.icon %}<img src="{{ MEDIA_URL }}scon/icons/{{ item.icon }}.png">{% endif %} {{ item.name }}
+		{% if item.sell_price %}<br><i>Sell: {{item.sell_price}} cr</i>{% endif %}
+		</div>
+		</td>
+		{% with item.primary_recipee as recipee %}
+		<td>
+		<div class="arrowright">{% if recipee.amount > 1 %}{{ recipee.amount }}{% endif %}</div>
+		</td>
+		<td>
+		<div class="panel item">
+		{% if recipee.output.icon %}<img src="{{ MEDIA_URL }}scon/icons/{{ recipee.output.icon }}.png">{% endif %} {{ recipee.output }}
+		{% if recipee.output.sell_price %}<br><i>Sell: {{recipee.output.sell_price}} cr</i>{% endif %}
+		</div>
+		<div class="panel-light item-sub">
+		<ul>
+		{% for ingredient in recipee.ingredients %}
+			<li>{{ ingredient.item.name }} x {{ ingredient.amount }}</li>
+		{% endfor %}
+		</ul>
+		</div>
+		</td>
+		<td>
+		<ul>
+			{% for i1 in item.crafting_used_in %}
+			{% with i1.crafting.output as ci %}
+			<li>{{ ci.name }}</li>
+			{% for i2 in ci.crafting_used_in %}
+			<li><i>{{ i2.crafting.output.name }} ({{ci.name}})</i></li>
+			{% endfor %}
+			{% endwith %}
+			{% endfor %}
+		</ul>
+		</td>
+		{% endwith %}
+	</tr>
+	{% endif %}
+	{% endfor %}
+	</tbody>
+</table>
+{% endblock context %}

@@ -36,6 +36,14 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'dj.scon',
+)
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.core.context_processors.request",
+    "django.contrib.auth.context_processors.auth",
+    "django.core.context_processors.media",
+    "django.core.context_processors.static",
 )
 
 MIDDLEWARE_CLASSES = (
@@ -47,7 +55,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'scon.dj.urls'
+ROOT_URLCONF = 'dj.urls'
 
 WSGI_APPLICATION = 'dj.wsgi.application'
 
@@ -80,6 +88,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = r'D:\work\workspace\scon\src\scon\dj\scon\media'
 
 DEJAQT_DIRS = {
     STATIC_URL: '',
