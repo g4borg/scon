@@ -1,15 +1,15 @@
 {% extends "scon/base.html" %}
 
 {% block context %}
-<img src="{{MEDIA_URL}}scon/conflict-logo.png" style="float:right;">
-<h1>Star Conflict Crafting Cheat Sheet</h1>
+<img src="{{MEDIA_URL}}scon/conflict-logo.png" style="position: absolute; float:left; top: -42px;">
+<h1 style="margin-left: 160px;">Crafting Overview</h1>
 <table>
 	<thead>
 		<tr>
-			<th>Name</th>
+			<th>Source</th>
 			<th style="width: 1em;">&nbsp;</th>
-			<th>Crafts to</th>
-			<th>Also used in Crafting</th>
+			<th>Crafts into</th>
+			<th>Also used in</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -28,24 +28,26 @@
 		</td>
 		<td>
 		<div class="panel item">
-		{% if recipee.output.icon %}<img src="{{ MEDIA_URL }}scon/icons/{{ recipee.output.icon }}.png">{% endif %} {{ recipee.output }}
+		{% if recipee.output.icon %}<img src="{{ MEDIA_URL }}scon/icons/{{ recipee.output.icon }}.png">{% endif %} {{ recipee.output.html }}
 		{% if recipee.output.sell_price %}<br><i>Sell: {{recipee.output.sell_price}} cr</i>{% endif %}
 		</div>
 		<div class="panel-light item-sub">
 		<ul>
 		{% for ingredient in recipee.ingredients %}
-			<li>{{ ingredient.item.name }} x {{ ingredient.amount }}</li>
+			<li>{{ ingredient.amount }} x {{ ingredient.item.html }}</li>
 		{% endfor %}
 		</ul>
 		</div>
 		</td>
 		<td>
-		<ul>
+		<ul class="remarks">
 			{% for i1 in item.crafting_used_in %}
 			{% with i1.crafting.output as ci %}
-			<li>{{ ci.name }}</li>
+			{% if ci.pk != recipee.output.pk %}
+			<li>{{ ci.html }}</li>
+			{% endif %}
 			{% for i2 in ci.crafting_used_in %}
-			<li><i>{{ i2.crafting.output.name }} ({{ci.name}})</i></li>
+			<li><i>{{ i2.crafting.output.html }} ({{ci.html}})</i></li>
 			{% endfor %}
 			{% endwith %}
 			{% endfor %}

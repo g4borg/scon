@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
+from django.utils.safestring import mark_safe
 
 ITEM_TYPES = (
   (0, 'Misc'),
@@ -89,10 +90,24 @@ class Item(models.Model):
     def crafting_used_in(self):
         return CraftingInput.objects.filter(item=self)
     
-    def __unicode__(self):
+    def get_full_name(self):
         if self.quality:
             return '%s (%s)' % (self.name, D_QUALITY.get(self.quality, ''))
         return '%s' % (self.name,)
+    
+    def __unicode__(self):
+        return self.get_full_name()
+    
+    def html(self):
+        # returns a html coded span with the items name.
+        classes = []
+        if self.quality:
+            classes.append('quality-%s' % self.quality)
+        ret = '<span'
+        if classes:
+            ret += ' class="%s"' % ' '.join(classes)
+        ret += '/>%s</span>' % self.name
+        return mark_safe(ret)
 
     
 class Crafting(models.Model):

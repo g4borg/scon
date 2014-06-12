@@ -37,11 +37,17 @@ def build_pk_cache(data, models=None):
             d['pk'] = i        
     return data
 
-def lookup_pk(data, name, mdl='scon.item'):
+def lookup_pk(data, name, mdl='scon.item', kwargs=None):
     for d in data:
         if d['model'] == mdl:
             if d['fields'].get('name', '').lower() == name.lower():
-                return d['pk']
+                found = True
+                if kwargs is not None:
+                    for key, val in kwargs.items():
+                        if not d['fields'].get(key, None) == val:
+                            found = False
+                if found:
+                    return d['pk']
 
 def generate_fixtures():
     data = []
@@ -54,15 +60,24 @@ def generate_fixtures():
             {'name': 'Crystal shard', 'sell_price': 3500, 'icon': 'resource_crystal_shard'},
             ]
     MATERIALS = [
-            {'name': 'Tungsten plate', 'description': 'Durable tungsten plate', 'sell_price': 20000,
+            {'name': 'Tungsten plate', 
+             'description': 'Durable tungsten plate', 
+             'sell_price': 20000,
              'icon': 'component_tungsten_plate'},
-            {'name': 'Screened battery', 'sell_price': 42000, 'icon': 'component_screened_battery'},
-            {'name': 'Osmium crystals', 'sell_price': 5500, 'icon': 'component_osmium_crystals'},
-            {'name': 'Pure Silicon', 'sell_price': 2500, 'icon': 'component_pure_silicon'},
-            {'name': 'Processing block', 'sell_price': 22000, 'icon': 'component_processing_block'},
-            {'name': 'Metal blank', 'sell_price': 1600, 'icon': 'component_metal_blank'},
-            {'name': 'Alien Monocrystal', 'sell_price': 25000, 'icon': 'component_alien_monocrystal'},
-            {'name': 'Computing chip', 'sell_price': 4500, 'icon': 'component_computing_chip'},
+            {'name': 'Screened battery', 'sell_price': 42000, 
+             'icon': 'component_screened_battery'},
+            {'name': 'Osmium crystals', 'sell_price': 5500, 
+             'icon': 'component_osmium_crystals'},
+            {'name': 'Pure Silicon', 'sell_price': 2500, 
+             'icon': 'component_pure_silicon'},
+            {'name': 'Processing block', 'sell_price': 22000, 
+             'icon': 'component_processing_block'},
+            {'name': 'Metal blank', 'sell_price': 1600, 
+             'icon': 'component_metal_blank'},
+            {'name': 'Alien Monocrystal', 'sell_price': 25000, 
+             'icon': 'component_alien_monocrystal'},
+            {'name': 'Computing chip', 'sell_price': 4500, 
+             'icon': 'component_computing_chip'},
             ]
     AMMOS = [
             {'name': 'Explosive Shells',
@@ -103,7 +118,7 @@ def generate_fixtures():
              {'name': 'Doomsday Missile',
               'quality': 1,
               'sell_price': 1000,
-              'tech': 5,
+              #'tech': 5,
               'icon': 'ammo_doomsday_missile',
               }
              ]
@@ -232,55 +247,55 @@ def generate_fixtures():
               'role': 9, # LRF 
               'icon': 'active_reverse_thruster',
               },
-             {'name': 'Alien Plasma Gun III',
+             {'name': 'Plasma Gun III',
               'quality': 5,
               'tech': 3,
               'typ': 7, # weap 
               'icon': 'weapon_plasma_gun_mk5',
               },
-             {'name': 'Alien Plasma Gun IV',
+             {'name': 'Plasma Gun IV',
               'quality': 5,
               'tech': 4,
               'typ': 7, # weap
               'icon': 'weapon_plasma_gun_mk5', 
               },
-             {'name': 'Alien Plasma Gun V',
+             {'name': 'Plasma Gun V',
               'quality': 5,
               'tech': 5,
               'typ': 7, # weap 
               'icon': 'weapon_plasma_gun_mk5',
               },
-             {'name': 'Alien Assault Railgun III',
+             {'name': 'Assault Railgun III',
               'quality': 5,
               'tech': 3,
               'typ': 7, # weap 
               'icon': 'weapon_assault_rail_mk5',
               },
-             {'name': 'Alien Assault Railgun IV',
+             {'name': 'Assault Railgun IV',
               'quality': 5,
               'tech': 4,
               'typ': 7, # weap
               'icon': 'weapon_assault_rail_mk5', 
               },
-             {'name': 'Alien Assault Railgun V',
+             {'name': 'Assault Railgun V',
               'quality': 5,
               'tech': 5,
               'typ': 7, # weap 
               'icon': 'weapon_assault_rail_mk5',
               },
-             {'name': 'Alien Beam Cannon III',
+             {'name': 'Beam Cannon III',
               'quality': 5,
               'tech': 3,
               'typ': 7, # weap 
               'icon': 'weapon_beam_cannon_mk5',
               },
-             {'name': 'Alien Beam Cannon IV',
+             {'name': 'Beam Cannon IV',
               'quality': 5,
               'tech': 4,
               'typ': 7, # weap
               'icon': 'weapon_beam_cannon_mk5', 
               },
-             {'name': 'Alien Beam Cannon V',
+             {'name': 'Beam Cannon V',
               'quality': 5,
               'tech': 5,
               'typ': 7, # weap 
@@ -399,67 +414,67 @@ def generate_fixtures():
                          ]},
             
             # plasma
-            {'item': 'Alien Plasma Gun III',
+            {'item': ('Plasma Gun III', {'quality': 5}),
              'recipee': [(1, 'Plasma Gun Prototype T3 Blueprint'), 
-                         (1, 'Plasma Gun III'),
+                         (1, ('Plasma Gun III', {'quality': 4})),
                          (6, 'Metal blank'),
                          (3, 'Screened battery'),
                          (30, 'Alien Monocrystal')
                          ]},
-            {'item': 'Alien Plasma Gun IV',
+            {'item': ('Plasma Gun IV', {'quality': 5}),
              'recipee': [(1, 'Plasma Gun Prototype T4 Blueprint'), 
-                         (1, 'Plasma Gun IV'),
+                         (1, ('Plasma Gun IV', {'quality': 4})),
                          (1, 'Tungsten plate'),
                          (4, 'Screened battery'),
                          (50, 'Alien Monocrystal')
                          ]},
-            {'item': 'Alien Plasma Gun V',
+            {'item': ('Plasma Gun V', {'quality': 5}),
              'recipee': [(1, 'Plasma Gun Prototype T5 Blueprint'), 
-                         (1, 'Plasma Gun V'),
+                         (1, ('Plasma Gun V', {'quality': 4})),
                          (3, 'Tungsten plate'),
                          (5, 'Screened battery'),
                          (70, 'Alien Monocrystal')
                          ]},
             # assault
-            {'item': 'Alien Assault Railgun III',
+            {'item': ('Assault Railgun III', {'quality': 5}),
              'recipee': [(1, 'Assault Railgun Prototype T3 Blueprint'), 
-                         (1, 'Assault Railgun III'),
+                         (1, ('Assault Railgun III', {'quality': 4})),
                          (6, 'Metal blank'),
                          (3, 'Screened battery'),
                          (30, 'Alien Monocrystal')
                          ]},
-            {'item': 'Alien Assault Railgun IV',
+            {'item': ('Assault Railgun IV', {'quality': 5}),
              'recipee': [(1, 'Assault Railgun Prototype T4 Blueprint'), 
-                         (1, 'Assault Railgun IV'),
+                         (1, ('Assault Railgun IV', {'quality': 4})),
                          (1, 'Tungsten plate'),
                          (4, 'Screened battery'),
                          (50, 'Alien Monocrystal')
                          ]},
-            {'item': 'Alien Assault Railgun V',
+            {'item': ('Assault Railgun V', {'quality': 5}),
              'recipee': [(1, 'Assault Railgun Prototype T5 Blueprint'), 
-                         (1, 'Assault Railgun V'),
+                         (1, ('Assault Railgun V', {'quality': 4})),
                          (3, 'Tungsten plate'),
                          (5, 'Screened battery'),
                          (70, 'Alien Monocrystal')
                          ]},
             # beam
-             {'item': 'Alien Beam Cannon III',
+             {'item': ('Beam Cannon III', {'quality': 5}),
              'recipee': [(1, 'Beam Cannon Prototype T3 Blueprint'), 
-                         (1, 'Beam Cannon III'),
+                         (1, ('Beam Cannon III', {'quality': 4})),
                          (6, 'Metal blank'),
                          (3, 'Screened battery'),
                          (30, 'Alien Monocrystal')
                          ]},
-            {'item': 'Alien Beam Cannon IV',
+            {'item': ('Beam Cannon IV', {'quality': 5}),
              'recipee': [(1, 'Beam Cannon Prototype T4 Blueprint'), 
-                         (1, 'Beam Cannon IV'),
+                         (1, ('Beam Cannon IV', {'quality': 4})),
                          (1, 'Tungsten plate'),
                          (4, 'Screened battery'),
                          (50, 'Alien Monocrystal')
                          ]},
-            {'item': 'Alien Beam Cannon V',
+            {'item': ('Beam Cannon V', {'quality': 5}),
              'recipee': [(1, 'Beam Cannon Prototype T5 Blueprint'), 
-                         (1, 'Beam Cannon V'),
+                         (1, ('Beam Cannon V', {'quality': 4})),
                          (3, 'Tungsten plate'),
                          (5, 'Screened battery'),
                          (70, 'Alien Monocrystal')
@@ -529,17 +544,29 @@ def generate_fixtures():
     j = 1 # counter for input
     for craft in CRAFTING:
         try:
+            item = craft['item']
+            kwargs = None
+            if isinstance(item, tuple) or isinstance(item, list):
+                kwargs = item[1]
+                item = item[0]
             crafting = {'model': 'scon.crafting',
                         'pk': i,
-                        'fields': { 'output': lookup_pk(data, craft['item']),
+                        'fields': { 'output': lookup_pk(data, item, kwargs=kwargs ),
                                     'amount': craft.get('amount', 1) }}
             data.append(crafting)
             primary = True
             for amount, recipee in craft['recipee']:
+                item = recipee
+                kwargs = None
+                if isinstance(item, tuple) or isinstance(item, list):
+                    print item
+                    kwargs = item[1]
+                    item = item[0]
+                    
                 crafting_input = {'model': 'scon.craftinginput',
                                   'pk': j,
                                   'fields': {'crafting': i,
-                                             'item': lookup_pk(data, recipee),
+                                             'item': lookup_pk(data, item, kwargs=kwargs),
                                              'amount': amount,
                                              'primary': primary}
                                   }
