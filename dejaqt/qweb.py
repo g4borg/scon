@@ -5,6 +5,11 @@ import os, logging
 from PyQt4 import QtCore, QtGui, QtWebKit, QtNetwork
 from django.test import Client
 from folders import FolderLibrary
+from django.http.request import QueryDict
+from urlparse import urlparse, parse_qs
+import cgi
+from io import BytesIO
+from django.http.multipartparser import MultiPartParser
 
 class DebugPage(QtWebKit.QWebPage):
     def sayMyName(self):
@@ -22,7 +27,9 @@ class DejaWebView(QtWebKit.QWebView):
         QtWebKit.QWebView.__init__(self, *args, **kwargs)
         #self.oldManager = self.page().networkAccessManager()
         self.setPage(page)
-        self.page().setNetworkAccessManager(DejaNetworkAccessManager(self))    
+        self.page().setNetworkAccessManager(DejaNetworkAccessManager(self))
+        self.client = Client()
+        #self.client.login(username='admin', password='admin')
 
 class DejaNetworkAccessManager(QtNetwork.QNetworkAccessManager):
     '''
@@ -41,7 +48,7 @@ class DejaNetworkAccessManager(QtNetwork.QNetworkAccessManager):
     '''
     USE_NETWORK = False
     def __init__(self, parent=None):
-        QtNetwork.QNetworkAccessManager.__init__(self, parent=None)
+        QtNetwork.QNetworkAccessManager.__init__(self, parent=parent)
         if parent:
             self.folders = getattr(parent, 'folders', FolderLibrary())
         
@@ -59,9 +66,7 @@ class DejaNetworkAccessManager(QtNetwork.QNetworkAccessManager):
                 #print reply
                 return reply
             elif operation == self.PostOperation:
-                print data.readAll()
-                #print request
-                reply = PageReply(self, request.url(), self.PostOperation)
+                reply = PageReply(self, request.url(), self.PostOperation, request, data)
                 return reply
         elif scheme == 'res':
             if operation == self.GetOperation:
@@ -73,8 +78,10 @@ class DejaNetworkAccessManager(QtNetwork.QNetworkAccessManager):
 
 class BasePageReply(QtNetwork.QNetworkReply):
     content_type = 'text/html; charset=utf-8'
-    def __init__(self, parent, url, operation):
+    def __init__(self, parent, url, operation, request=None, data=None):
         QtNetwork.QNetworkReply.__init__(self, parent)
+        self.data = data
+        self.request = request
         self.content = self.initialize_content(url, operation)
         self.offset = 0
         self.setHeader(QtNetwork.QNetworkRequest.ContentTypeHeader, self.get_content_type())
@@ -142,18 +149,40 @@ class PageReply(ResourceReply):
     content_type = 'text/html'
     
     def initialize_content(self, url, operation):
-        c = Client()
-        print "Response for %s, method %s" % (url.path(), operation)
+        try:
+            c = self.parent().parent().client
+        except:
+            logging.error('Internal HTTP Client not found. Creating new.')
+            c = Client()
+        logging.info( "Response for %s, method %s" % (url.path(), operation) )
         if operation == DejaNetworkAccessManager.GetOperation:
-            response = c.get(unicode(url.path()), )
+            response = c.get(unicode(url.path()), follow=True )
         elif operation == DejaNetworkAccessManager.PostOperation:
-            response = c.post(unicode(url.path()))
+            ct = str(self.request.rawHeader('Content-Type'))
+            cl = str(self.request.rawHeader('Content-Length'))
+            s = str(self.data.readAll())
+            if ct.startswith('multipart/form-data'):
+                # multipart parsing
+                logging.error('Multipart Parsing Try...')
+                b = BytesIO(s)
+                q, files = MultiPartParser({'CONTENT_TYPE': ct,
+                                 'CONTENT_LENGTH': cl,
+                                 },
+                                b,
+                                []).parse()
+                response = c.post(unicode(url.path()), q, follow=True)
+            else:
+                # assume post data.
+                q = QueryDict( s )
+                response = c.post(unicode(url.path()), q, follow=True)
         self.content_type = response.get('Content-Type', self.content_type)
         # response code
         #print "Response Status: %s" % response.status_code
         # note: on a 404, we might need to trigger file response.
         if response.status_code == 404:
             return ResourceReply.initialize_content(self, url, DejaNetworkAccessManager.GetOperation)
+        if hasattr(response, 'streaming_content'):
+            return ''.join(response.streaming_content)
         return response.content
 
 class NoNetworkReply(BasePageReply):

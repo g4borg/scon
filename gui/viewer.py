@@ -35,7 +35,7 @@ class Browser(QtGui.QMainWindow):
         """
 
         QtGui.QMainWindow.__init__(self)
-        self.resize(800,600)
+        self.resize(860,600)
         self.centralwidget = QtGui.QWidget(self)
 
         self.mainLayout = QtGui.QHBoxLayout(self.centralwidget)
@@ -90,7 +90,7 @@ class Browser(QtGui.QMainWindow):
         #url = self.tb_url.text() if self.tb_url.text() else self.default_url
         #self.html.load(QtCore.QUrl(url))
         #self.html.setHtml(self.serve())
-        self.html.load(QtCore.QUrl('page:///admin/'))
+        self.html.load(QtCore.QUrl('page:///crafting/overview/'))
         self.html.show()
         
     def serve(self, what=None):

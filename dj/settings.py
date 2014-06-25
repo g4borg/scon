@@ -83,13 +83,16 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
-
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = r'D:\work\workspace\scon\src\scon\dj\scon\media'
+
+#SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+#SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+#SESSION_ENGINE = "django.contrib.sessions.backends.file"
+#SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 
 DEJAQT_DIRS = {
     STATIC_URL: '',
