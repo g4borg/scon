@@ -11,9 +11,10 @@ urlpatterns = patterns('',
     url(r'^crafting/', 'dj.scon.views.crafting', name='scon_crafting'),
 )
 
-if settings.DEBUG :
+if settings.DEBUG or getattr(settings, 'SERVE_INTERNAL', False):
     urlpatterns += patterns('',
-        (r'^media/(?P<path>.*)$', 'django.views.static.serve', 
-         {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),
-        
+        url(r'^static/(?P<path>.*)$', 'django.contrib.staticfiles.views.serve'),
+        url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {
+            'document_root': settings.MEDIA_ROOT,
+        }),
     )
