@@ -11,8 +11,9 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'scon.dj.settings'
 #setup_environ(settings)
 import sys
 from PyQt4 import QtCore, QtGui, QtWebKit, QtNetwork
+from scon.dejaqt.folders import FolderLibrary
+from scon.dejaqt.qweb import DejaWebView
 from treeview import TreeViewModel, Node
-from localbrowser import LocalWebView
 
 class MenuTree(QtGui.QTreeView):
     def __init__(self, *args, **kwargs):
@@ -64,7 +65,9 @@ class Browser(QtGui.QMainWindow):
         self.gridLayout.addLayout(self.horizontalMainLayout)
         #
         #self.menu = MenuTree()
-        self.html = LocalWebView(basedir='D:/work/workspace/scon/src/scon/dj/scon/media/')
+        self.html = DejaWebView(folders=FolderLibrary({'':
+                                                        'D:/work/workspace/scon/src/scon/dj/scon/media/'})
+                                 )
         #self.horizontalMainLayout.addWidget(self.menu)
         self.horizontalMainLayout.addWidget(self.html)
         self.mainLayout.addWidget(self.frame)

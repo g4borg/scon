@@ -13,7 +13,9 @@ class FolderLibrary(object):
             if settings:
                 self.folders.update( getattr(settings, 'DEJAQT_DIRS', {}) )
         except:
-            logging.error('DEJAQT_DIRS in django settings is corrupt.')
+            logging.error('DEJAQT_DIRS in django settings threw error.')
+            import traceback
+            traceback.print_exc()
         if folders:
             # no try here: if this fails, you got yourself a programming error.
             self.folders.update(folders)
@@ -47,24 +49,27 @@ class FolderLibrary(object):
     def matched_folder(self, url):
         m = self.match(url)
         if m is not None:
-            real_folder = self._folders[m]
-            print m
-            print url
-            print url[len(m):]
-            print os.path.split(real_folder)
-            print os.path.split(url)
-            return real_folder
+            folder = self._folders[m]
+            #heading, rest = url[:len(m)], url[len(m):]
+            rest = url[len(m):]
+            real_folder = os.path.abspath( os.path.join(folder, rest) )
+            if real_folder.startswith(os.path.abspath(folder)):
+                return real_folder
+            else:
+                logging.error('%s does not seem to be a subpath of %s' % (real_folder, folder))
         
     def print_folders(self):
         print '{'
         for k in self._keys:
-            print "'%s': '%s'" % (k, self._folders[k])
+            print "'%s': '%s'," % (k, self._folders[k])
         print '}'
     
 
 if __name__ == "__main__":
     # test this:
-    f = FolderLibrary({'abc/dab/': 'c:/dab',
+    import os
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'scon.dj.settings' 
+    f = FolderLibrary({'abc/dab/': 'c:/media',
                        'abc': 'd:/abc',
                        'abc/dab/tmp': '/tmp',
                        'uiuiui': 'x:/',
@@ -75,5 +80,5 @@ if __name__ == "__main__":
     f.add_folder('abc/dub/', 'c:/dubdub')
     f.print_folders()
     
-    print f.matched_folder('abc/dab/okokok/hurnkint.pdf')
+    print f.matched_folder('abc/dab/okokok/some.png')
     

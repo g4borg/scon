@@ -4,6 +4,7 @@
 import os, logging
 from PyQt4 import QtCore, QtGui, QtWebKit, QtNetwork
 from django.test import Client
+from folders import FolderLibrary
 
 class DebugPage(QtWebKit.QWebPage):
     def sayMyName(self):
@@ -11,17 +12,17 @@ class DebugPage(QtWebKit.QWebPage):
 
 class DejaWebView(QtWebKit.QWebView):
     '''
-        BaseDir. Get rid of it?
+        Optional: 
+          * folders: FolderLibrary() Instance.
+          * page: Initialized QWebPage instance for initial page (default DebugPage())
     '''
     def __init__(self, *args, **kwargs):
-        basedir = kwargs.pop('basedir', None)
+        self.folders = kwargs.pop('folders', FolderLibrary())
+        page = kwargs.pop('page', DebugPage())
         QtWebKit.QWebView.__init__(self, *args, **kwargs)
-        oldManager = self.page().networkAccessManager()
-        self.setPage(DebugPage())
-        self.page().setNetworkAccessManager(DejaNetworkAccessManager(self, basedir))
-    
-    def set_basedir(self, basedir):
-        self.page().setNetworkAccessManager(DejaNetworkAccessManager(self, basedir))    
+        #self.oldManager = self.page().networkAccessManager()
+        self.setPage(page)
+        self.page().setNetworkAccessManager(DejaNetworkAccessManager(self))    
 
 class DejaNetworkAccessManager(QtNetwork.QNetworkAccessManager):
     '''
@@ -39,14 +40,11 @@ class DejaNetworkAccessManager(QtNetwork.QNetworkAccessManager):
         Note2: not sure if cookies and sessions will work this way!
     '''
     USE_NETWORK = False
-    def __init__(self, parent=None, basedir=None):
+    def __init__(self, parent=None):
         QtNetwork.QNetworkAccessManager.__init__(self, parent=None)
-        if not basedir:
-            # take current dir as basedir.
-            self.basedir = os.path.dirname(os.path.abspath(__file__))
-        else:
-            self.basedir = basedir
-
+        if parent:
+            self.folders = getattr(parent, 'folders', FolderLibrary())
+        
     def createRequest(self, operation, request, data):
         scheme = request.url().scheme()
         if scheme != 'page' and scheme != 'res':
@@ -61,13 +59,13 @@ class DejaNetworkAccessManager(QtNetwork.QNetworkAccessManager):
                 #print reply
                 return reply
             elif operation == self.PostOperation:
-                #print data.readAll()
+                print data.readAll()
                 #print request
                 reply = PageReply(self, request.url(), self.PostOperation)
                 return reply
         elif scheme == 'res':
             if operation == self.GetOperation:
-                return ImageReply(self, request.url(), self.GetOperation, self.basedir)
+                return ResourceReply(self, request.url(), self.GetOperation)
         else:
             if self.USE_NETWORK:
                 return QtNetwork.QNetworkAccessManager.createRequest(self, operation, request, data)
@@ -113,7 +111,36 @@ class BasePageReply(QtNetwork.QNetworkReply):
             self.offset = end
             return data
 
-class PageReply(BasePageReply):
+class ResourceReply(BasePageReply):
+    content_type = 'image/png'
+    
+    def determine_content_type(self, path):
+        return self.content_type
+        
+    def initialize_content(self, url, operation):
+        # determine folder:
+        path = unicode(url.path()).lstrip('/')
+        folders = getattr(self.parent(), 'folders')
+        if folders:
+            path = folders.matched_folder(path)
+            if path:
+                if os.path.exists(path):
+                    try:
+                        f = open(path, 'rb')
+                        return f.read()
+                    finally:
+                        f.close()
+                else:
+                    logging.warning('Path does not exist: %s' % path)
+            else:
+                logging.error('Containing Folder not found for %s' % path)
+        else:
+            logging.error('Configuration Error: No Folders found.')
+        return ''
+    
+class PageReply(ResourceReply):
+    content_type = 'text/html'
+    
     def initialize_content(self, url, operation):
         c = Client()
         print "Response for %s, method %s" % (url.path(), operation)
@@ -121,9 +148,12 @@ class PageReply(BasePageReply):
             response = c.get(unicode(url.path()), )
         elif operation == DejaNetworkAccessManager.PostOperation:
             response = c.post(unicode(url.path()))
+        self.content_type = response.get('Content-Type', self.content_type)
         # response code
-        print "Response Status: %s" % response.status_code
+        #print "Response Status: %s" % response.status_code
         # note: on a 404, we might need to trigger file response.
+        if response.status_code == 404:
+            return ResourceReply.initialize_content(self, url, DejaNetworkAccessManager.GetOperation)
         return response.content
 
 class NoNetworkReply(BasePageReply):
@@ -137,26 +167,3 @@ class NoNetworkReply(BasePageReply):
             </html>
         '''
 
-class ResourceReply(BasePageReply):
-    content_type = 'image/png'
-    
-    def __init__(self, parent, url, operation, basedir):
-        self.basedir = basedir
-        BasePageReply.__init__(self, parent, url, operation)
-    
-    def determine_content_type(self, path):
-        return self.content_type
-        
-    def initialize_content(self, url, operation):
-        path = os.path.join(self.basedir, unicode(url.path()).lstrip('/'))
-        if not os.path.exists(path):
-            logging.error('Image does not exist: %s' % path)
-            return ''
-        #h = url.host()
-        # @todo: host checks?
-        try:
-            f = open(path, 'rb')
-            return f.read()
-        finally:
-            f.close()
-        
