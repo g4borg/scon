@@ -9,6 +9,7 @@ class LogSession(object):
         The Log-Session is supposed to save one directory of logs.
         It can parse its logs, and build up its internal structure into Battle Instances etc.
     """
+    VALID_FILES = ['combat.log', 'game.log', ] # extend this to other logs.
     
     def __init__(self, directory):
         ''' if directory is a file, it will be handled as a compressed folder '''
@@ -22,22 +23,47 @@ class LogSession(object):
         # self.net_log = None
         
         self.directory = directory
-        self._zip_source = False
+        self._zip_source = None
+        self.idstr = None # id string to identify this log instance.
+        self._error = False
     
-    def parse_files(self):
-        ''' parses the logfiles '''
-        # check if directory is a file
+    def validate(self, contents=False):
+        """ 
+          - validates if the logfiles are within this package.
+          - sets the idstr of this object.
+          @todo: in-depth validation of logs, on contents=True.
+        """
         self._zip_source = os.path.isfile(self.directory) or False
+        v = False
+        try:
+            if self._zip_source:
+                v = self._unzip_validate()
+                if v > 0:
+                    self.idstr = os.path.split(self.directory)[1].replace('.zip', '').lower()
+            else:
+                v = self._validate_files_exist()                
+                if v > 0:
+                    self.idstr = os.path.split(self.directory)[1].lower()
+        except:
+            return False
+        return v            
+    
+    def parse_files(self, files=None):
+        ''' parses the logfiles '''
+        # perform simple validation.
+        if self._zip_source is None:
+            self.validate(False)
         if self._zip_source:
-            self._unzip_logs()
+            self._unzip_logs(files)
         else:
-            self.combat_log = CombatLogFile(os.path.join(self.directory, 'combat.log'))
-            self.combat_log.read()
-            self.game_log = GameLogFile(os.path.join(self.directory, 'game.log'))
-            self.game_log.read()
-        # parse all files
-        self.combat_log.parse()
-        self.game_log.parse()
+            if 'combat.log' in files:
+                self.combat_log = CombatLogFile(os.path.join(self.directory, 'combat.log'))
+                self.combat_log.read()
+                self.combat_log.parse()
+            if 'game.log' in files:
+                self.game_log = GameLogFile(os.path.join(self.directory, 'game.log'))
+                self.game_log.read()
+                self.game_log.parse()
     
     def determine_owner(self):
         ''' determines the user in the parsed gamelog '''
@@ -47,19 +73,79 @@ class LogSession(object):
         ''' parses the battles '''
         pass
     
-    def _unzip_logs(self):
+    def _unzip_logs(self, files=None):
         z = zipfile.ZipFile(self.directory, "r")
+        try:
+            for filename in z.namelist():
+                fn = os.path.split(filename)[1] or ''
+                fn = fn.lower()
+                if fn:
+                    if fn == 'combat.log' and (not files or fn in files):
+                        self.combat_log = CombatLogFile(fn)
+                        self.combat_log.set_data(z.read(filename))
+                    elif fn == 'game.log' and (not files or fn in files):
+                        self.game_log = GameLogFile(fn)
+                        self.game_log.set_data(z.read(filename))
+        except:
+            self._error = True
+            return
+        finally:
+            z.close()
+    
+    def _unzip_validate(self):
+        z = zipfile.ZipFile(self.directory, "r")
+        found = 0
         for filename in z.namelist():
             fn = os.path.split(filename)[1] or ''
             fn = fn.lower()
-            if fn:
-                if fn == 'combat.log':
-                    self.combat_log = CombatLogFile(fn)
-                    self.combat_log.set_data(z.read(filename))
-                elif fn == 'game.log':
-                    self.game_log = GameLogFile(fn)
-                    self.game_log.set_data(z.read(filename))
-                
+            if fn and fn in self.VALID_FILES:
+                found += 1
+        z.close()
+        return found
+    
+    def _validate_files_exist(self):
+        found = 0
+        for f in self.VALID_FILES:
+            if os.path.exists(os.path.join(self.directory, f)):
+                found += 1
+        return found
+
+class LogSessionCollector(object):
+    def __init__(self, directory):
+        self.initial_directory = directory
+        self.sessions = []
+        self.find_sessions()
+    
+    def find_sessions(self):
+        for f in os.listdir(self.initial_directory):
+            full_dir = os.path.join(self.initial_directory, f)
+            if os.path.isdir(full_dir) or full_dir.lower().endswith('.zip'):
+                self.sessions.append(LogSession(full_dir))
+    
+    def collect(self):
+        sessions = []
+        for session in self.sessions:
+            try:
+                if session.validate():
+                    sessions.append(session)       
+            except:
+                continue
+        return sessions
+    
+    def collect_unique(self):
+        ''' collects all sessions into a dictionary ordered by their idstr.
+            sessions without idstr, or already existing (first served) are omitted
+            parsing is not done.
+        '''
+        # note this function resets sessions to the working ones.
+        self.sessions = self.collect()
+        sessions_dict = {}
+        for session in self.sessions:
+            if session.idstr and not session.idstr in sessions_dict.keys():
+                sessions_dict[session.idstr] = session
+        return sessions_dict
+        
+        
 
 
 if __name__ == '__main__':
@@ -68,3 +154,6 @@ if __name__ == '__main__':
     
     l_zip.parse_files()
     print l_zip.combat_log.lines
+    
+    collector = LogSessionCollector('D:\\Users\\g4b\\Documents\\My Games\\sc\\')
+    print collector.collect_unique()

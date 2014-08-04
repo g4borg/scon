@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
     Library dedicated to Star Conflict Logs.
     

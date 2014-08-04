@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
     todo:
     - English implementation first.
@@ -19,9 +21,10 @@
     The typical log entry
 """
 import re
-from base import Log
+from base import Log, L_CMBT
 
 class CombatLog(Log):
+    __slots__ = ['matcher', 'trash', '_match_id', 'values']
     @classmethod
     def _log_handler(cls, log):
         if log.get('log', '').strip().startswith(cls.__name__):
@@ -30,7 +33,7 @@ class CombatLog(Log):
     
     @classmethod
     def is_handler(cls, log):
-        if log.get('logtype', None) == 'CMBT':
+        if log.get('logtype', None) == L_CMBT:
             return cls._log_handler(log)
         return False
     
@@ -38,22 +41,28 @@ class CombatLog(Log):
         self.values = values
     
     def unpack(self):
+        self._match_id = None
         # unpacks the data from the values.
         if hasattr(self, 'matcher') and self.matcher:
             matchers = self.matcher
             if not isinstance(matchers, list):
                 matchers = [matchers,]
-            for matcher in matchers:
+            for i, matcher in enumerate(matchers):
                 m = matcher.match(self.values.get('log', ''))
                 if m:
                     self.values.update(m.groupdict())
+                    self._match_id = i
                     return True
+        # unknown?
+        self.trash = True
                 
 # @todo: where does this come from?
 class Action(CombatLog):
+    __slots__ = CombatLog.__slots__
     pass
 
 class Gameplay(CombatLog):
+    __slots__ = CombatLog.__slots__
     matcher = [
         # usual: team(reason). explained reason.
         re.compile(r"^Gameplay\sfinished\.\sWinner\steam\:\s+(?P<winner_team>\d+)\((?P<winner_reason>\w+)\)\.\sFinish\sreason\:\s'(?P<reason_verbose>[^']+)'\.\sActual\sgame\stime\s+(?P<game_time>\d+|\d+\.\d+)\ssec"),
@@ -62,27 +71,35 @@ class Gameplay(CombatLog):
         ]
 
 class Apply(CombatLog): # Apply Aura.
+    __slots__ = CombatLog.__slots__
     matcher = re.compile(r"^Apply\saura\s'(?P<aura_name>\w+)'\sid\s(?P<id>\d+)\stype\s(?P<aura_type>\w+)\sto\s'(?P<target_name>[^\']+)'")
 
 class Damage(CombatLog):
+    __slots__ = CombatLog.__slots__
     matcher = re.compile(r"^Damage\s+(?P<source_name>[^\s]+)\s\->\s+(?P<target_name>[^\s]+)\s+(?P<amount>(?:\d+|\d+\.\d+))(?:\s(?P<module_class>[^\s]+)\s|\s{2,2})(?P<flags>(?:\w|\|)+)")
 
 class Spawn(CombatLog):
+    __slots__ = CombatLog.__slots__
     matcher = re.compile(r"^Spawn\sSpaceShip\sfor\splayer(?P<player>\d+)\s\((?P<name>[^,]+),\s+(?P<hash>#\w+)\)\.\s+'(?P<ship_class>\w+)'")
 
 class Spell(CombatLog):
+    __slots__ = CombatLog.__slots__
     matcher = re.compile(r"^Spell\s'(?P<spell_name>\w+)'\sby\s+(?P<source_name>.*)(?:\((?P<module_name>\w+)\)|)\stargets\((?P<target_num>\d+)\)\:(?:$|\s(?P<targets>.+))")
 
 class Reward(CombatLog):
+    __slots__ = CombatLog.__slots__
     matcher = re.compile(r"^Reward\s+(?P<name>[^\s]+)(?:\s(?P<ship_class>\w+)\s+|\s+)(?P<amount>\d+)\s(?P<reward_type>.*)\s+for\s(?P<reward_reason>.*)")
 
 class Participant(CombatLog):
+    __slots__ = CombatLog.__slots__
     matcher = re.compile(r"^\s+Participant\s+(?P<source_name>[^\s]+)(?:\s{2}(?P<ship_class>\w+)|\s{30,})\s+(?:totalDamage\s(?P<total_damage>(?:\d+|\d+\.\d+));\smostDamageWith\s'(?P<module_class>[^']+)';(?P<additional>.*)|<(?P<other>\w+)>)")
 
 class Rocket(CombatLog):
+    __slots__ = CombatLog.__slots__
     matcher = re.compile(r"^Rocket\s(?P<event>launch|detonation)\.\sowner\s'(?P<name>[^']+)'(?:,\s(?:def\s'(?P<missile_type>\w+)'|target\s'(?P<target>[^']+)'|reason\s'(?P<reason>\w+)'|directHit\s'(?P<direct_hit>[^']+)'))+")
 
 class Heal(CombatLog):
+    __slots__ = CombatLog.__slots__
     matcher = [
         # heal by module
         re.compile(r"^Heal\s+(?P<source_name>[^\s]+)\s\->\s+(?P<target_name>[^\s]+)\s+(?P<amount>(?:\d+|\d+\.\d+))\s(?P<module_class>[^\s]+)"),
@@ -91,6 +108,7 @@ class Heal(CombatLog):
         ]
 
 class Killed(CombatLog):
+    __slots__ = CombatLog.__slots__
     matcher = [
         re.compile(r"^Killed\s(?P<target_name>[^\s]+)\s+(?P<ship_class>\w+);\s+killer\s(?P<source_name>[^\s]+)\s*"),
         re.compile(r"^Killed\s(?P<object>[^\(]+)\((?P<target_name>\w+)\);\s+killer\s(?P<source_name>[^\s]+)\s*"),
@@ -98,19 +116,24 @@ class Killed(CombatLog):
         ]
 
 class Captured(CombatLog):
+    __slots__ = CombatLog.__slots__
     matcher = re.compile(r"^Captured\s'(?P<objective>[^']+)'\(team\s(?P<team>\d+)\)\.(?:\sAttackers\:(?P<attackers>.*)|.*)")
 
 class AddStack(CombatLog):
+    __slots__ = CombatLog.__slots__
     matcher = re.compile(r"^AddStack\saura\s'(?P<spell_name>\w+)'\sid\s(?P<id>\d+)\stype\s(?P<type>\w+)\.\snew\sstacks\scount\s(?P<stack_count>\d+)")
 
 class Cancel(CombatLog):
+    __slots__ = CombatLog.__slots__
     matcher = re.compile(r"^Cancel\saura\s'(?P<spell_name>\w+)'\sid\s(?P<id>\d+)\stype\s(?P<type>\w+)\sfrom\s'(?P<source_name>[^']+)'")
 
 class Scores(CombatLog):
+    __slots__ = CombatLog.__slots__
     matcher = re.compile(r"^Scores\s+-\sTeam1\((?P<team1_score>(?:\d+|\d+\.\d+))\)\sTeam2\((?P<team2_score>(?:\d+|\d+\.\d+))\)")
     
 # Special classes
 class GameEvent(CombatLog):
+    __slots__ = CombatLog.__slots__
     matcher = [
         # game session identifier.
         re.compile(r"^Connect\sto\sgame\ssession\s+(?P<game_session>\d+)"),
@@ -127,20 +150,25 @@ class GameEvent(CombatLog):
         return False
     
     def unpack(self):
+        self._match_id = None
         # unpacks the data from the values.
         # small override to remove trailing "="s in the matching.
         if hasattr(self, 'matcher') and self.matcher:
             matchers = self.matcher
             if not isinstance(matchers, list):
                 matchers = [matchers,]
-            for matcher in matchers:
+            for i, matcher in enumerate(matchers):
                 m = matcher.match(self.values.get('log', '').strip('=').strip())
                 if m:
                     self.values.update(m.groupdict())
+                    self._match_id = i
                     return True
+        # unknown?
+        self.trash = True
 
 class UserEvent(CombatLog):
     """ special class for combat logs that might be associated with the playing player """
+    __slots__ = CombatLog.__slots__
     @classmethod
     def _log_handler(cls, log):
         if log.get('log', '').strip():

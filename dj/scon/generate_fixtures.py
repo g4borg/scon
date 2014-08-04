@@ -53,9 +53,9 @@ def generate_fixtures():
     data = []
     
     ORES = [
-            {'name': 'Tungsten ore', 'sell_price': 6600, 'icon': 'resource_tungsten_ore'},
-            {'name': 'Osmium ore', 'sell_price': 4500, 'icon': 'resource_osmium_ore'},
-            {'name': 'Silicon ore', 'sell_price': 600, 'icon': 'resource_silicon_ore'},
+            {'name': 'Impure tungsten', 'sell_price': 6600, 'icon': 'resource_tungsten_ore'},
+            {'name': 'Impure osmium', 'sell_price': 4500, 'icon': 'resource_osmium_ore'},
+            {'name': 'Impure silicon', 'sell_price': 600, 'icon': 'resource_silicon_ore'},
             {'name': 'Vanadium', 'sell_price': 500, 'icon': 'resource_vanadium'},
             {'name': 'Crystal shard', 'sell_price': 3500, 'icon': 'resource_crystal_shard'},
             ]
@@ -329,13 +329,13 @@ def generate_fixtures():
             {'item': 'Duplicator',
              'recipee': [(1, 'Processing Block'), (2,'Computing chip'), (2, 'Metal blank')]},
             {'item': 'Tungsten plate',
-             'recipee': [(2, 'Tungsten ore'),]},
+             'recipee': [(2, 'Impure tungsten'),]},
             {'item': 'Screened battery',
              'recipee': [(1, 'Tungsten plate'), (2, 'Computing chip')]},
             {'item': 'Osmium crystals',
-             'recipee': [(1, 'Osmium ore'),]},
+             'recipee': [(1, 'Impure osmium'),]},
             {'item': 'Pure Silicon',
-             'recipee': [(1, 'Silicon ore'),]},
+             'recipee': [(1, 'Impure silicon'),]},
             {'item': 'Computing chip',
              'recipee': [(1, 'Crystal shard'),]},
             {'item': 'Processing block',

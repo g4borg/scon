@@ -77,7 +77,7 @@ class Browser(QtGui.QMainWindow):
         self.connect(self.bt_back, QtCore.SIGNAL("clicked()"), self.html.back)
         self.connect(self.bt_ahead, QtCore.SIGNAL("clicked()"), self.html.forward)
 
-        self.tb_url.setText('Search...')
+        self.tb_url.setText('/crafting/forum')
         
         self.browse()
 
@@ -87,10 +87,13 @@ class Browser(QtGui.QMainWindow):
             Webview widget.
         """
 
-        #url = self.tb_url.text() if self.tb_url.text() else self.default_url
-        #self.html.load(QtCore.QUrl(url))
+        url = self.tb_url.text() if self.tb_url.text() else 'page:///'
+        if not str(url).startswith('page://'):
+            url = 'page://' + url
+        self.html.load(QtCore.QUrl(url))
         #self.html.setHtml(self.serve())
-        self.html.load(QtCore.QUrl('page:///crafting/overview/'))
+        
+        #self.html.load(QtCore.QUrl('page:///crafting/forum/'))
         self.html.show()
         
     def serve(self, what=None):

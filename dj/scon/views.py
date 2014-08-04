@@ -17,3 +17,16 @@ def crafting(request):
     c = RequestContext(request, {'tree': tree,
                                  'items': items})
     return HttpResponse(t.render(c))
+
+def crafting_forum(request):
+    t = loader.get_template('scon/crafting/forum_efefay.html')
+    items = models.Item.objects.filter(craftable=True)
+    ores = []
+    for item in items.filter(typ__in=[12, 13]):
+        if len(item.parents()) == 0 and item.primary_recipee():
+            ores.append(item)
+    tree = None
+    c = RequestContext(request, {'tree': tree,
+                                 'ores': ores,
+                                 'items': items})
+    return HttpResponse(t.render(c))

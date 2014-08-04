@@ -8,7 +8,9 @@ urlpatterns = patterns('',
     # url(r'^$', 'dj.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^crafting/', 'dj.scon.views.crafting', name='scon_crafting'),
+    url(r'^crafting/forum/$', 'dj.scon.views.crafting_forum', name='scon_crafting_forum'),
+    url(r'^crafting/$', 'dj.scon.views.crafting', name='scon_crafting'),
+    
 )
 
 if settings.DEBUG or getattr(settings, 'SERVE_INTERNAL', False):

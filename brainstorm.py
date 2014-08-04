@@ -16,7 +16,7 @@
 """
 #from win32com.shell import shell, shellcon
 import os, sys, logging
-from logs.logresolver import LogFileResolver as LogFile
+from logs.logfiles import LogFileResolver as LogFile
 from logs import combat
 
 # for windows its kinda this:

@@ -1,4 +1,5 @@
-# 
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 """
     Author: Gabor Guzmics, 2013-2014
     
@@ -29,6 +30,9 @@ class LogFile(object):
         
     def set_data(self, data):
         self._data = data
+    
+    def _unset_data(self):
+        self._data = None
     
     def parse(self):
         # parse _data if we still have no lines.

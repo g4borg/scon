@@ -90,6 +90,17 @@ class Item(models.Model):
     def crafting_used_in(self):
         return CraftingInput.objects.filter(item=self)
     
+    def parents(self):
+        my_recipee = Crafting.objects.filter(output=self)
+        if my_recipee.count():
+            ci = CraftingInput.objects.filter(crafting=my_recipee).filter(primary=True)
+            if ci.count():
+                # ci.item is my parent
+                ret = [ci[0].item]
+                ret.extend(ci[0].item.parents())
+                return ret
+        return []
+    
     def get_full_name(self):
         if self.quality:
             return '%s (%s)' % (self.name, D_QUALITY.get(self.quality, ''))
@@ -122,8 +133,8 @@ class Crafting(models.Model):
         return 'Recipee for %s' % (self.output.name,)
 
 class CraftingInput(models.Model):
-    crafting = models.ForeignKey(Crafting)
-    item = models.ForeignKey(Item)
+    crafting = models.ForeignKey(Crafting) # the items you need.
+    item = models.ForeignKey(Item) # the item you get.
     amount = models.IntegerField(default=1)
     primary = models.BooleanField(default=False, blank=True)
     
