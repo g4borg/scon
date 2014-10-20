@@ -9,6 +9,7 @@
     data by setting the LogFile<instance>._data yourself.
 """
 import re
+from .base import Log
 RE_SCLOG = r'^(?P<hh>\d{2,2})\:(?P<mm>\d{2,2})\:(?P<ss>\d{2,2})\.(?P<ns>\d{3,3})\s(?P<logtype>\s*[^\|\s]+\s*|\s+)\|\s(?P<log>.*)'
 R_SCLOG = re.compile(RE_SCLOG) 
 
@@ -33,6 +34,15 @@ class LogFile(object):
     
     def _unset_data(self):
         self._data = None
+        
+    def filter(self, klasses):
+        ret = []
+        for line in self.lines:
+            for k in klasses:
+                if isinstance(line, k):
+                    ret.append(line)
+                    break
+        return ret
     
     def parse(self):
         # parse _data if we still have no lines.
@@ -83,4 +93,18 @@ class LogFile(object):
         # line is a dict.
         # try to find a class that is responsible for this log.
         return line
+    
+    def clean(self):
+        # cleans the logs by removing all non parsed packets.
+        lines = []
+        for l in self.lines:
+            if isinstance(l, Log):
+                if l.unpack():
+                    if not getattr(l, 'trash', False):
+                        lines.append(l)
+                    else:
+                        print type(l)
+                        print l
+        self.lines = lines
+        self._unset_data()
 

@@ -15,6 +15,7 @@ class LogSession(object):
         ''' if directory is a file, it will be handled as a compressed folder '''
         self.battles = []
         self.user = None
+        self.files_parsed = []
         
         # various logfiles used.
         self.combat_log = None
@@ -26,6 +27,15 @@ class LogSession(object):
         self._zip_source = None
         self.idstr = None # id string to identify this log instance.
         self._error = False
+    
+    def clean(self):
+        if self.combat_log:
+            self.combat_log.clean()
+        if self.game_log:
+            self.game_log.clean()
+        if self.chat_log:
+            self.chat_log.clean()
+        
     
     def validate(self, contents=False):
         """ 
@@ -56,14 +66,18 @@ class LogSession(object):
         if self._zip_source:
             self._unzip_logs(files)
         else:
-            if 'combat.log' in files:
+            if files is None:
+                files = self.VALID_FILES
+            if 'combat.log' in files and not 'combat.log' in self.files_parsed:
                 self.combat_log = CombatLogFile(os.path.join(self.directory, 'combat.log'))
                 self.combat_log.read()
                 self.combat_log.parse()
-            if 'game.log' in files:
+                self.files_parsed.append('combat.log')
+            if 'game.log' in files and not 'game.log' in self.files_parsed:
                 self.game_log = GameLogFile(os.path.join(self.directory, 'game.log'))
                 self.game_log.read()
                 self.game_log.parse()
+                self.files_parsed.append('game.log')
     
     def determine_owner(self):
         ''' determines the user in the parsed gamelog '''
@@ -80,12 +94,16 @@ class LogSession(object):
                 fn = os.path.split(filename)[1] or ''
                 fn = fn.lower()
                 if fn:
-                    if fn == 'combat.log' and (not files or fn in files):
+                    if fn == 'combat.log' and (not files or fn in files) and not 'combat.log' in self.files_parsed:
                         self.combat_log = CombatLogFile(fn)
                         self.combat_log.set_data(z.read(filename))
-                    elif fn == 'game.log' and (not files or fn in files):
+                        self.combat_log.parse()
+                        self.files_parsed.append('combat.log')
+                    elif fn == 'game.log' and (not files or fn in files) and not 'game.log' in self.files_parsed:
                         self.game_log = GameLogFile(fn)
                         self.game_log.set_data(z.read(filename))
+                        self.game_log.parse()
+                        self.files_parsed.append('game.log')
         except:
             self._error = True
             return

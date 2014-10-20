@@ -92,11 +92,14 @@ class WarningLog(Log):
 # Individual logs.
 
 class SteamInitialization(GameLog):
-    matcher = []
+    matcher = [
+        re.compile(r"^Steam\sinitialized\sappId\s(?P<steam_app_id>\d+),\suserSteamID\s(?P<steam_id_universe>\d+)\|(?P<steam_id_type>\d+)\|(?P<steam_id_account_hex>\w+),\suserName\s'(?P<steam_username>[^']+)'"),
+        ]
 
 class MasterServerSession(GameLog):
     matcher = [
-        re.compile(r"^MasterServerSession\:\sconnect\sto\sdedicated\sserver(?:,\s|session\s(?P<session_id>\d+)|at addr (?P<addr>\d+\.\d+\.\d+\.\d+)\|(?P<port>\d+))+"),       
+        re.compile(r"^MasterServerSession\:\sconnect\sto\sdedicated\sserver(?:,\s|session\s(?P<session_id>\d+)|at addr (?P<addr>\d+\.\d+\.\d+\.\d+)\|(?P<port>\d+))+"),
+        re.compile(r"^MasterServerSession:\sconnect\sto\sZoneInstance,\ssession\s(?P<session_id>\d+),\sat\saddr\s(?P<addr>\d+\.\d+\.\d+\.\d+)\|(?P<port>\d+),\szoneId\s(?P<zone_id>\d+)"),
         ]
     
     @classmethod

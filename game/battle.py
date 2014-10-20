@@ -5,13 +5,25 @@
 """
 
 class Battle(object):
-    __slots__ = ['players',
-                 'teams', 
-                 'time_start',
-                 'time_end',]
     def __init__(self, parent=None):
         # parent is a log-session usually
-        pass
+        self.players = []
+        self.teams = []
+        self.time_start = None
+        self.time_end = None
+        self.owner = None
     
+
+def battle_factory(logs):
+    ''' takes a log session and returns the battles in it 
+        makes a preliminary scan for information
+    '''
+    
+    if logs.combat_log and logs.game_log:
+        # without these it does not make sense
+        # check combat_log
+        
+        pass
+    return []
     
         

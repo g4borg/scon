@@ -28,6 +28,7 @@ QUALITY_TYPES = (
   (5, 'Mk5'),
   (10, 'Universal'),
   (14, 'Pirate Mk4'),
+  (99, 'Alien'),
   )
 D_QUALITY = dict(QUALITY_TYPES)
 
@@ -51,9 +52,13 @@ ROLE_TYPES = (
   (6, 'Gunship'),
   (7, 'Engineer'),
   (8, 'Guard'),
-  (9, 'Longrange')    
+  (9, 'Longrange'),
+  (10, 'Interceptors'),
+  (20, 'Fighters'),
+  (30, 'Frigates'),    
   )
-# Create your models here.
+
+
 class Item(models.Model):
     name = models.CharField(max_length=128)
     description = models.TextField(blank=True, null=True)

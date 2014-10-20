@@ -27,31 +27,39 @@ if __name__ == '__main__':
                         'Documents', 'My Games', 'sc'))
     coll.collect_unique()
     #f = open('output.txt', 'w')
-    rex = {}
+    rex_combat = {}
+    rex_game = {}
     for logf in coll.sessions:
-        logf.parse_files(['game.log',])
-        print "Combat Log %s" % logf.idstr
+        logf.parse_files(['game.log', 'combat.log'])
+        print "----- Log %s -----" % logf.idstr
         if logf.combat_log:
             for l in logf.combat_log.lines:
                 if isinstance(l, dict):
                     #print l
-                    pass
+                    rex_combat['dict'] = rex_combat.get('dict', 0) + 1
                 else:
                     if not l.unpack():
-                        rex[l.__class__.__name__] = rex.get(l.__class__.__name__, 0) + 1
+                        rex_combat[l.__class__.__name__] = rex_combat.get(l.__class__.__name__, 0) + 1
                         if not isinstance(l, combat.UserEvent):
                             print l.values['log']
         if logf.game_log:
             for l in logf.game_log.lines:
                 if isinstance(l, dict):
-                    pass
+                    rex_game['dict'] = rex_game.get('dict', 0) + 1 
+                elif isinstance(l, str):
+                    print l
                 else:
                     if l.unpack():
                         pass
                     else:
+                        rex_game[l.__class__.__name__] = rex_game.get(l.__class__.__name__, 0) + 1
                         print l.values['log']
                     # ClientInfo introspection for ping
-                    if isinstance(l, ClientInfo) and l.values.get('clinfo', '') == 'avgPing':
-                        print l.values
-                        # fix avgPing parsing!
-    print rex
+                    #if isinstance(l, ClientInfo) and l.values.get('clinfo', '') == 'avgPing':
+                    #    print l.values
+                    #    # fix avgPing parsing!
+    print 'Analysis complete:'
+    print '#'*20+' RexCombat ' + '#' *20
+    print rex_combat
+    print '#'*20+' RexGame ' + '#' *20
+    print rex_game
