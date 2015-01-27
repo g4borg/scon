@@ -1,0 +1,3 @@
+this module will be reimplented as "djascon" for now.
+
+better name pending.
