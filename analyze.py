@@ -29,8 +29,9 @@ if __name__ == '__main__':
     #f = open('output.txt', 'w')
     rex_combat = {}
     rex_game = {}
+    rex_chat = {}
     for logf in coll.sessions:
-        logf.parse_files(['game.log', 'combat.log'])
+        logf.parse_files(['game.log', 'combat.log', 'chat.log'])
         print "----- Log %s -----" % logf.idstr
         if logf.combat_log:
             for l in logf.combat_log.lines:
@@ -54,12 +55,22 @@ if __name__ == '__main__':
                     else:
                         rex_game[l.__class__.__name__] = rex_game.get(l.__class__.__name__, 0) + 1
                         print l.values['log']
-                    # ClientInfo introspection for ping
-                    #if isinstance(l, ClientInfo) and l.values.get('clinfo', '') == 'avgPing':
-                    #    print l.values
-                    #    # fix avgPing parsing!
+        if logf.chat_log:
+            for l in logf.chat_log.lines:
+                if isinstance(l, dict):
+                    rex_chat['dict'] = rex_chat.get('dict', 0) + 1 
+                elif isinstance(l, str):
+                    print l
+                else:
+                    if l.unpack():
+                        pass
+                    else:
+                        rex_chat[l.__class__.__name__] = rex_chat.get(l.__class__.__name__, 0) + 1
+                        print l.values['log']
     print 'Analysis complete:'
     print '#'*20+' RexCombat ' + '#' *20
     print rex_combat
     print '#'*20+' RexGame ' + '#' *20
     print rex_game
+    print '#'*20+' RexChat ' + '#' *20
+    print rex_chat

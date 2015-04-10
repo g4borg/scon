@@ -117,6 +117,11 @@ class LogFileSession(LogSession):
                         self.game_log.set_data(z.read(filename))
                         self.game_log.parse()
                         self.files_parsed.append('game.log')
+                    elif fn == 'chat.log' and (not files or fn in files) and not 'chat.log' in self.files_parsed:
+                        self.chat_log = ChatLogFile(fn)
+                        self.chat_log.set_data(z.read(filename))
+                        self.chat_log.parse()
+                        self.files_parsed.append('chat.log')
         except:
             self._error = True
             return

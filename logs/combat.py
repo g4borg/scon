@@ -39,6 +39,7 @@ class CombatLog(Log):
     
     def __init__(self, values=None):
         self.values = values or {}
+        self.reviewed = False
     
     def unpack(self, force=False):
         if self.reviewed and not force:

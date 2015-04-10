@@ -24,6 +24,7 @@ class ChatLog(Log):
     
     def __init__(self, values=None):
         self.values = values or {}
+        self.reviewed = False
     
     def unpack(self, force=False):
         if self.reviewed and not force:
@@ -48,6 +49,19 @@ class ChatLog(Log):
         ''' returns a String readable by humans explaining this Log '''
         return self.values.get('log', 'Unknown Chat Log')
 
+class SystemMessage(ChatLog):
+    matcher = re.compile(r"^<\s+SYSTEM>\s(?P<message>.*)")
+    
+    @classmethod
+    def _is_handler(cls, log):
+        if log.get('log', '').lstrip().startswith('<          SYSTEM>'):
+            return True
+        return False
+    
+    def explain(self):
+        return '[SYSTEM]: %(message)s' % self.values
+
+    
 
 class PrivateMessageReceived(ChatLog):
     matcher = re.compile(r"^<\s\s\s\sPRIVATE From>\[\s*(?P<nickname>[^\]]+)\]\s(?P<message>.*)")
@@ -146,6 +160,7 @@ class ChatServerDisconnect(ChatLog):
         return '[disconnected]'
     
 CHAT_LOGS = [
+        SystemMessage,
         PrivateMessageReceived,
         PrivateMessageSent,
         ChatMessage, # private messages need to be before chatmessage.

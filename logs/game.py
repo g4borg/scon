@@ -58,6 +58,7 @@ class GameLog(Log):
     
     def __init__(self, values=None):
         self.values = values
+        self.reviewed = False
     
     def unpack(self, force=False):
         if self.reviewed and not force:
