@@ -2,14 +2,22 @@
     Logging Session.
 """
 import zipfile, logging, os
-from logfiles import CombatLogFile, GameLogFile
+from logfiles import CombatLogFile, GameLogFile, ChatLogFile
 
 class LogSession(object):
     """
-        The Log-Session is supposed to save one directory of logs.
+        A basic logsession.
+        deal with data as it comes along, and output interpretable data for the outside world.
+        
+    """
+    pass
+
+class LogFileSession(LogSession):
+    """
+        The Log-File-Session is supposed to save one directory of logs.
         It can parse its logs, and build up its internal structure into Battle Instances etc.
     """
-    VALID_FILES = ['combat.log', 'game.log', ] # extend this to other logs.
+    VALID_FILES = ['combat.log', 'game.log', 'chat.log' ] # extend this to other logs.
     
     def __init__(self, directory):
         ''' if directory is a file, it will be handled as a compressed folder '''
@@ -78,6 +86,11 @@ class LogSession(object):
                 self.game_log.read()
                 self.game_log.parse()
                 self.files_parsed.append('game.log')
+            if 'chat.log' in files and not 'chat.log' in self.files_parsed:
+                self.chat_log = ChatLogFile(os.path.join(self.directory, 'chat.log'))
+                self.chat_log.read()
+                self.chat_log.parse()
+                self.files_parsed.append('chat.log')
     
     def determine_owner(self):
         ''' determines the user in the parsed gamelog '''
@@ -138,7 +151,7 @@ class LogSessionCollector(object):
         for f in os.listdir(self.initial_directory):
             full_dir = os.path.join(self.initial_directory, f)
             if os.path.isdir(full_dir) or full_dir.lower().endswith('.zip'):
-                self.sessions.append(LogSession(full_dir))
+                self.sessions.append(LogFileSession(full_dir))
     
     def collect(self):
         sessions = []
@@ -167,8 +180,8 @@ class LogSessionCollector(object):
 
 
 if __name__ == '__main__':
-    l_raw = LogSession('D:\\Users\\g4b\\Documents\\My Games\\sc\\2014.05.17 15.50.28')
-    l_zip = LogSession('D:\\Users\\g4b\\Documents\\My Games\\sc\\2014.05.20 23.49.19.zip')
+    l_raw = LogFileSession('D:\\Users\\g4b\\Documents\\My Games\\sc\\2014.05.17 15.50.28')
+    l_zip = LogFileSession('D:\\Users\\g4b\\Documents\\My Games\\sc\\2014.05.20 23.49.19.zip')
     
     l_zip.parse_files()
     print l_zip.combat_log.lines

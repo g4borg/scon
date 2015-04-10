@@ -7,6 +7,7 @@
 from logfile import LogFile
 from combat import COMBAT_LOGS
 from game import GAME_LOGS
+from chat import CHAT_LOGS
 
 class LogFileResolver(LogFile):
     ''' dynamic logfile resolver '''
@@ -34,6 +35,14 @@ class GameLogFile(LogFile):
     ''' Game Log '''
     def resolve(self, line):
         for klass in GAME_LOGS:
+            if klass.is_handler(line):
+                return klass(line)
+        return line
+
+class ChatLogFile(LogFile):
+    ''' Chat Log '''
+    def resolve(self, line):
+        for klass in CHAT_LOGS:
             if klass.is_handler(line):
                 return klass(line)
         return line

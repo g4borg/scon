@@ -59,7 +59,9 @@ class GameLog(Log):
     def __init__(self, values=None):
         self.values = values
     
-    def unpack(self):
+    def unpack(self, force=False):
+        if self.reviewed and not force:
+            return True
         self._match_id = None
         # unpacks the data from the values.
         if hasattr(self, 'matcher') and self.matcher:
@@ -71,10 +73,15 @@ class GameLog(Log):
                 if m:
                     self.values.update(m.groupdict())
                     self._match_id = i
+                    self.reviewed = True
                     return True
         # unknown?
         self.trash = True
-                
+    
+    def explain(self):
+        ''' returns a String readable by humans explaining this Log '''
+        return self.values.get('log', 'Unknown Game Log')
+
 class WarningLog(Log):
     __slots__ = ['trash',]
     trash = True

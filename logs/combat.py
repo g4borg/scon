@@ -24,7 +24,7 @@ import re
 from base import Log, L_CMBT
 
 class CombatLog(Log):
-    __slots__ = ['matcher', 'trash', '_match_id', 'values']
+    __slots__ = Log.__slots__ + [ '_match_id', 'values']
     @classmethod
     def _log_handler(cls, log):
         if log.get('log', '').strip().startswith(cls.__name__):
@@ -38,9 +38,11 @@ class CombatLog(Log):
         return False
     
     def __init__(self, values=None):
-        self.values = values
+        self.values = values or {}
     
-    def unpack(self):
+    def unpack(self, force=False):
+        if self.reviewed and not force:
+            return True
         self._match_id = None
         # unpacks the data from the values.
         if hasattr(self, 'matcher') and self.matcher:
@@ -52,9 +54,15 @@ class CombatLog(Log):
                 if m:
                     self.values.update(m.groupdict())
                     self._match_id = i
+                    self.reviewed = True
                     return True
         # unknown?
         self.trash = True
+    
+    def explain(self):
+        ''' returns a String readable by humans explaining this Log '''
+        return self.values.get('log', 'Unknown Combat Log')
+
                 
 # @todo: where does this come from?
 class Action(CombatLog):
@@ -88,7 +96,12 @@ class Spell(CombatLog):
 
 class Reward(CombatLog):
     __slots__ = CombatLog.__slots__
-    matcher = re.compile(r"^Reward\s+(?P<name>[^\s]+)(?:\s(?P<ship_class>\w+)\s+|\s+)(?P<amount>\d+)\s(?P<reward_type>.*)\s+for\s(?P<reward_reason>.*)")
+    matcher = [
+        # ordinary reward:
+        re.compile(r"^Reward\s+(?P<name>[^\s]+)(?:\s(?P<ship_class>\w+)\s+|\s+)(?P<amount>\d+)\s(?P<reward_type>.*)\s+for\s(?P<reward_reason>.*)"),
+        # openspace reward (karma):
+        re.compile(r"^Reward\s+(?P<name>[^\s]+)(?:\s(?P<ship_class>\w+)\s+|\s+)\s+(?P<karma>[\+\-]\d+)\skarma\spoints\s+for\s(?P<reward_reason>.*)"),
+        ]
 
 class Participant(CombatLog):
     __slots__ = CombatLog.__slots__
@@ -125,7 +138,7 @@ class AddStack(CombatLog):
 
 class Cancel(CombatLog):
     __slots__ = CombatLog.__slots__
-    matcher = re.compile(r"^Cancel\saura\s'(?P<spell_name>\w+)'\sid\s(?P<id>\d+)\stype\s(?P<type>\w+)\sfrom\s'(?P<source_name>[^']+)'")
+    matcher = re.compile(r"^Cancel\saura\s'(?P<spell_name>\w+)'\sid\s(?P<id>\d+)\stype\s(?P<type>\w+)\sfrom\s'(?P<source_name>[^']*)'")
 
 class Scores(CombatLog):
     __slots__ = CombatLog.__slots__
@@ -149,7 +162,9 @@ class GameEvent(CombatLog):
             return True
         return False
     
-    def unpack(self):
+    def unpack(self, force=False):
+        if self.reviewed and not force:
+            return True
         self._match_id = None
         # unpacks the data from the values.
         # small override to remove trailing "="s in the matching.
@@ -162,6 +177,7 @@ class GameEvent(CombatLog):
                 if m:
                     self.values.update(m.groupdict())
                     self._match_id = i
+                    self.reviewed = True
                     return True
         # unknown?
         self.trash = True
