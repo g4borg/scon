@@ -1,8 +1,28 @@
 import logging
+"""
+    Base Class for a Logentry is Log. Stacktrace is an exception, which gets injected if a stacktrace 
+    is assumed, and swallows all following unrecognized logs.
+    
+    -> It gets parsed by a Logstream, like the Logfile, but might also be used to be feeded 
+       by live-streams of currently open log files.
+    
+    -> Logfiles is responsible to read whole packs of files, and 
+    -> Sessions are responsible for reading whole directories.
+    
+    A Log object usually will expand itself containing "values", and is responsible to retain all dynamic data needed to describe it in unpack()
+    The classmethod is_handler should pre-scan a log, which is usually a dict containing the actual log in log['log']
+    but it could be a string aswell.
+    
+    clean is called to make a log object independent of its source information, and delete all incoming data, so it becomes sleek.
+    reviewed is an internal boolean, which supposed to be saved on successful unpack, unpack should ignore already unpacked logs.
+    matcher is a regex object to match, or a list of them.
+    trash is a boolean flag to indicate, this log is possibly unknown information or unneeded, and should be removed or ignored.
+"""
+
 
 L_CMBT = 'CMBT'
 L_WARNING = 'WARNING'
-L_NET = 'NET'
+L_NET = 'NET' # Not supported in near future.
 L_CHAT = 'CHAT'
 
 class Log(object):

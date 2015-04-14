@@ -4,6 +4,13 @@
 from logs.base import Log, L_WARNING, Stacktrace
 import re
 """
+    This deals with the Game.Log file
+    This file records lots of junk, but is needed to establish actions taken  between combat sessions,
+    or retrieve more detailed information about running instances.
+    It is also the typical place for a Stacktrace to happen.
+
+
+--------------------------------------
 Interesting Lines:
 
 23:16:27.427        | Steam initialized appId 212070, userSteamID 1|1|4c5a01, userName 'G4bOrg'

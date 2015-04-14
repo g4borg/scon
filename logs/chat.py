@@ -2,9 +2,13 @@
 from logs.base import Log, L_WARNING, Stacktrace
 import re
 """
-Responsible for Chat Log.
+    Responsible for Chat Log.
+    
+    Anything related to chat gets logged here, basicly interesting for chat related stuff mainly.
+    Channel leaving and joining and connection to the chat server get logged here too.
 
-ColorChart:
+-------------------------------
+Maybe add something to create a ColorChart of usernames?
 between 33-33-33 and FF-33 FF-33 FF-33
 
 """

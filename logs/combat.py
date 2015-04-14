@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
-
 """
-    todo:
-    - English implementation first.
-    - parsing combat.log
+    Primary Packets for Combat.Log Files.
     
-    Prosa.
+    This is the most important part for dealing with actual statistics, since every action taken
+    in a combat instance gets logged here.
+    
+    
+    ------------------------------------
+    Note:
     All logs start with something like
     23:53:29.137        | LOGDATA 
     
@@ -16,9 +18,6 @@
     
     combat logs:
     01:04:38.805 CMBT   | 
-    
-    
-    The typical log entry
 """
 import re
 from base import Log, L_CMBT, Stacktrace
