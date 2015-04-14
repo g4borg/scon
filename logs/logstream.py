@@ -124,7 +124,7 @@ class LogStream(object):
                         self._last_object.unpack()
                         if self._last_object.append(line):
                             return
-                    logging.debug('>> %s' % line)
+                    logging.debug('#: %s' % line)
                     o = None
             elif isinstance(line, dict):
                 # Unresolved Log.

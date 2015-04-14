@@ -77,6 +77,10 @@ if __name__ == '__main__':
                         if not LOG_GOOD:
                             print l.values['log']
         logf.clean(True)
+        # additional cleanup:
+        logf.chat_log.lines = []
+        logf.game_log.lines = []
+        logf.combat_log.lines = []
     print 'Analysis complete:'
     print '#'*20+' RexCombat ' + '#' *20
     print rex_combat

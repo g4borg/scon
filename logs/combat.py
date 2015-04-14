@@ -59,11 +59,19 @@ class CombatLog(Log):
                     self.reviewed = True
                     return True
         # unknown?
+        if not isinstance(self, UserEvent):
+            logging.warning('Unknown Packet for %s: "%s"' % (self.__class__.__name__, 
+                                                             self.values.get('log', '')))
+        # trash if unknown or no matcher.
         self.trash = True
     
     def explain(self):
         ''' returns a String readable by humans explaining this Log '''
         return self.values.get('log', 'Unknown Combat Log')
+    
+    def clean(self):
+        if 'log' in self.values.keys():
+            del self.values['log']
 
                 
 # @todo: where does this come from?
@@ -145,6 +153,23 @@ class Cancel(CombatLog):
 class Scores(CombatLog):
     __slots__ = CombatLog.__slots__
     matcher = re.compile(r"^Scores\s+-\sTeam1\((?P<team1_score>(?:\d+|\d+\.\d+))\)\sTeam2\((?P<team2_score>(?:\d+|\d+\.\d+))\)")
+
+class Uncaptured(CombatLog):
+    """
+Uncaptured 'VitalPoint_Beacon3_RC'(team 1). Attackers: bergg 10101
+Uncaptured 'VitalPoint_Beacon2_RC'(team 1). Attackers: kuja cmdrey
+Uncaptured 'VitalPoint_Beacon1_RC'(team 2). Attackers: UnknownAgent
+Uncaptured 'VitalPoint_Beacon1_RC_King'(team 2). Attackers: OregyenDuero CaptainX11 g4borg vacknishkara tatsar46359 (bot)Nicholas (bot)Helen
+Uncaptured 'VitalPoint_Beacon1_RC_King'(team 2). Attackers: g4borg (bot)Nicholas
+Uncaptured 'VitalPoint_Beacon3_RC_King'(team 2). Attackers: g4borg
+Uncaptured 'VitalPoint_Beacon2_SS'(team 2). Attackers: CaptainX11 g4borg Targeht Dvorkin
+Uncaptured 'VitalPoint_Beacon3_RC'(team 1). Attackers: mnsMonty
+Uncaptured 'VitalPoint_Beacon1_RC'(team 1). Attackers: OregyenDuero g4borg manbearpig10261
+Uncaptured 'VitalPoint_Beacon2_RC'(team 2). Attackers: yeahalex BlueSea
+Uncaptured 'VitalPoint_Beacon3_RC'(team 2). Attackers: Cordierit
+    """
+    __slots__ = CombatLog.__slots__
+    matcher = re.compile(r"^Uncaptured\s'(?P<objective>[^']+)'\(team\s(?P<team>\d+)\)\.(?:\sAttackers\:\s(?P<attackers>.*)|)")
     
 # Special classes
 class GameEvent(CombatLog):
@@ -207,6 +232,20 @@ class Looted(CombatLog):
     __slots__ = CombatLog.__slots__
     matcher = [] # @TODO: do this.
 
+class Dropped(CombatLog):
+    """
+    called on dropping in openspace.
+    """
+    __slots__ = CombatLog.__slots__
+    matcher = [] # @TODO: do this.
+
+class Set(CombatLog):
+    """
+    called on setting "relationship" / OpenSpace
+    """
+    __slots__ = CombatLog.__slots__
+    matcher = [] #@TODO: do this.
+
 class UserEvent(CombatLog):
     """ special class for combat logs that might be associated with the playing player """
     __slots__ = CombatLog.__slots__
@@ -223,8 +262,11 @@ class UserEvent(CombatLog):
 COMBAT_LOGS = [ Apply, Damage, Spawn, Spell, Reward, Participant, Rocket, Heal, 
                Gameplay, #?
                Scores,
-               Killed, Captured, AddStack, Cancel,
-               PVE_Mission, Looted,
+               Killed, Captured, AddStack, Cancel, Uncaptured,
+               # undone openspace:
+               PVE_Mission, Looted, Set, Dropped,
+               
+               # always last:
                GameEvent, UserEvent,
                Stacktrace,
                ]
