@@ -23,6 +23,10 @@ settings = {'root_path': os.path.join(os.path.expanduser('~'),
 
 
 if __name__ == '__main__':
+    import logging
+    logging.basicConfig(level=logging.DEBUG,
+                        format='%(asctime)s - %(message)s',
+                        datefmt='%Y-%m-%d %H:%M:%S')
     coll = LogSessionCollector(os.path.join(os.path.expanduser('~'),
                         'Documents', 'My Games', 'sc'))
     coll.collect_unique()
@@ -30,7 +34,7 @@ if __name__ == '__main__':
     rex_combat = {}
     rex_game = {}
     rex_chat = {}
-    LOG_GOOD = True
+    LOG_GOOD = True # Log good packets.
     for logf in coll.sessions:
         logf.parse_files(['game.log', 'combat.log', 'chat.log'])
         

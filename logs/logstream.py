@@ -29,6 +29,7 @@
 from .base import Log
 import re
 from logs.base import Stacktrace
+import logging
 RE_SCLOG = r'^(?P<hh>\d{2,2})\:(?P<mm>\d{2,2})\:(?P<ss>\d{2,2})\.(?P<ns>\d{3,3})\s(?P<logtype>\s*[^\|\s]+\s*|\s+)\|\s(?P<log>.*)'
 R_SCLOG = re.compile(RE_SCLOG) 
 
@@ -87,6 +88,10 @@ class LogStream(object):
             return line
         elif line.startswith('---'):
             return None
+        elif line == '' or line == '\n':
+            if line == '\n':
+                logging.debug('Empty Newline detected.')
+            return None
         else:
             # get the timecode & logtype
             m = R_SCLOG.match(line)
@@ -96,8 +101,6 @@ class LogStream(object):
                     g['logtype'] = g['logtype'].strip()
                 return g
             else:
-                #if line:
-                #    print line
                 return line
         return None
     
@@ -109,15 +112,19 @@ class LogStream(object):
                 # Unknown Log?
                 if not line:
                     return
-                if self._last_object is not None:
-                    self._last_object.unpack()
-                    if self._last_object.append(line):
-                        return
                 # It might be a stacktrace. inject it./
                 if Stacktrace.is_handler(o):
                     o = Stacktrace(o)
                     self._last_object = o
                 else:
+                    #if isinstance(self._last_object, Stacktrace) and line.startswith('\t'):
+                    #    logging.debug('Workaround: %s, worked: %s' % (line, self._last_object.append(line)))
+                    #    return                        
+                    if self._last_object is not None:
+                        self._last_object.unpack()
+                        if self._last_object.append(line):
+                            return
+                    logging.debug('>> %s' % line)
                     o = None
             elif isinstance(line, dict):
                 # Unresolved Log.

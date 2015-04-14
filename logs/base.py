@@ -1,3 +1,4 @@
+import logging
 
 L_CMBT = 'CMBT'
 L_WARNING = 'WARNING'
@@ -56,5 +57,6 @@ class Stacktrace(Log):
     
     def append(self, something):
         ''' I take anything! '''
-        print "EXC: %s" % something
+        logging.debug( "EXC: %s" % something )
         self.message = '%s\n%s' % (self.message, something)
+        return True

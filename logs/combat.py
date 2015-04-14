@@ -22,6 +22,7 @@
 """
 import re
 from base import Log, L_CMBT, Stacktrace
+import logging
 
 class CombatLog(Log):
     __slots__ = Log.__slots__ + [ '_match_id', 'values']
@@ -215,7 +216,7 @@ class UserEvent(CombatLog):
         if line and 'earned medal' in line:
             return True
         elif line:
-            print line
+            logging.debug('UserEvent saw unknown line: %s' % line)
         return False
 
 # Action?

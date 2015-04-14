@@ -41,7 +41,7 @@ class LogFile(LogStream):
         lines = []
         if self.has_data():
             data_lines = self.get_data(
-                        #).replace('\r', '\n'
+                        ).replace('\r', '\n'
                         ).replace('\n\n', '\n'
                         ).split('\n'
                         )
