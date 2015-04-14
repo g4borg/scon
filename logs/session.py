@@ -36,13 +36,13 @@ class LogFileSession(LogSession):
         self.idstr = None # id string to identify this log instance.
         self._error = False
     
-    def clean(self):
+    def clean(self, remove_log=True):
         if self.combat_log:
-            self.combat_log.clean()
+            self.combat_log.clean(remove_log)
         if self.game_log:
-            self.game_log.clean()
+            self.game_log.clean(remove_log)
         if self.chat_log:
-            self.chat_log.clean()
+            self.chat_log.clean(remove_log)
         
     
     def validate(self, contents=False):
@@ -180,6 +180,10 @@ class LogSessionCollector(object):
             if session.idstr and not session.idstr in sessions_dict.keys():
                 sessions_dict[session.idstr] = session
         return sessions_dict
+    
+    def clean(self, remove_log=True):
+        for session in self.sessions:
+            session.clean(remove_log)
         
         
 

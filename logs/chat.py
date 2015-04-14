@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from logs.base import Log, L_WARNING
+from logs.base import Log, L_WARNING, Stacktrace
 import re
 """
 Responsible for Chat Log.
@@ -48,6 +48,10 @@ class ChatLog(Log):
     def explain(self):
         ''' returns a String readable by humans explaining this Log '''
         return self.values.get('log', 'Unknown Chat Log')
+    
+    def clean(self):
+        if 'log' in self.values.keys():
+            del self.values['log']
 
 class SystemMessage(ChatLog):
     matcher = re.compile(r"^<\s+SYSTEM>\s(?P<message>.*)")
@@ -60,6 +64,12 @@ class SystemMessage(ChatLog):
     
     def explain(self):
         return '[SYSTEM]: %(message)s' % self.values
+    
+    def append(self, something):
+        ''' System Messages accept appends '''
+        if 'message' in self.values.keys():
+            self.values['message'] = '%s\n%s' % (self.values['message'], something)
+            return True
 
     
 
@@ -74,6 +84,12 @@ class PrivateMessageReceived(ChatLog):
     
     def explain(self):
         return '[From %(nickname)s]: %(message)s' % self.values
+    
+    def append(self, something):
+        ''' Private Messages accept appends '''
+        if 'message' in self.values.keys():
+            self.values['message'] = '%s\n%s' % (self.values['message'], something)
+            return True
 
 class PrivateMessageSent(ChatLog):
     matcher = re.compile(r"^<\s\s\s\sPRIVATE To\s\s>\[\s*(?P<nickname>[^\]]+)\]\s(?P<message>.*)")
@@ -86,6 +102,12 @@ class PrivateMessageSent(ChatLog):
     
     def explain(self):
         return '[To %(nickname)s]: %(message)s' % self.values
+    
+    def append(self, something):
+        ''' Private Messages accept appends '''
+        if 'message' in self.values.keys():
+            self.values['message'] = '%s\n%s' % (self.values['message'], something)
+            return True
 
 class ChatMessage(ChatLog):
     matcher = re.compile(r"^<\s*#(?P<channel>[^>]+)>\[\s*(?P<nickname>[^\]]+)\]\s(?P<message>.*)")
@@ -98,6 +120,14 @@ class ChatMessage(ChatLog):
     
     def explain(self):
         return '[%(channel)s] <%(nickname)s>: %(message)s' % self.values
+    
+    def append(self, something):
+        ''' ChatMessages accept appends '''
+        if not 'message' in self.values.keys():
+            print "Missing message? %s" % self.values
+            self.values['message'] = ''    
+        self.values['message'] = '%s\n%s' % (self.values['message'], something)
+        return True 
 
 class ChatJoinChannel(ChatLog):
     matcher = re.compile(r"^Join\schannel\s<\s*#(?P<channel>[^>]+)>")
@@ -168,4 +198,5 @@ CHAT_LOGS = [
         ChatServerDisconnect,
         ChatJoinChannel,
         ChatLeaveChannel,
+        Stacktrace,
              ]

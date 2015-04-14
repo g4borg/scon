@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from logs.base import Log, L_WARNING
+from logs.base import Log, L_WARNING, Stacktrace
 import re
 """
 Interesting Lines:
@@ -59,6 +59,10 @@ class GameLog(Log):
     def __init__(self, values=None):
         self.values = values
         self.reviewed = False
+    
+    def clean(self):
+        if 'log' in self.values.keys():
+            del self.values['log']
     
     def unpack(self, force=False):
         if self.reviewed and not force:
@@ -180,4 +184,5 @@ GAME_LOGS = [#SteamInitialization,
              ClientInfo,
              StartingLevel,
              #LevelStarted,
+             Stacktrace,
              ]

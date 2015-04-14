@@ -21,7 +21,7 @@
     The typical log entry
 """
 import re
-from base import Log, L_CMBT
+from base import Log, L_CMBT, Stacktrace
 
 class CombatLog(Log):
     __slots__ = Log.__slots__ + [ '_match_id', 'values']
@@ -93,7 +93,7 @@ class Spawn(CombatLog):
 
 class Spell(CombatLog):
     __slots__ = CombatLog.__slots__
-    matcher = re.compile(r"^Spell\s'(?P<spell_name>\w+)'\sby\s+(?P<source_name>.*)(?:\((?P<module_name>\w+)\)|)\stargets\((?P<target_num>\d+)\)\:(?:$|\s(?P<targets>.+))")
+    matcher = re.compile(r"^Spell\s'(?P<spell_name>\w+)'\sby\s+(?P<source_name>.*)(?:\((?P<module_name>\w+)\)|)\stargets\((?P<target_num>\d+)\)\:(?:\s(?P<targets>.+)|\s*)")
 
 class Reward(CombatLog):
     __slots__ = CombatLog.__slots__
@@ -182,14 +182,40 @@ class GameEvent(CombatLog):
                     return True
         # unknown?
         self.trash = True
+    
+    def clean(self):
+        if 'log' in self.values.keys():
+            del self.values['log']
+
+class PVE_Mission(CombatLog):
+    """
+    PVE_Mission: 'bigship_building_normal'. start round 1/3
+    PVE_Mission: 'bigship_building_normal'. round 1/3. start wave 1/3
+    PVE_Mission: 'bigship_building_normal'. round 1/3. start wave 2/3
+    PVE_Mission: 'bigship_building_normal'. round 1/3. start wave 3/3
+    """
+    __slots__ = CombatLog.__slots__
+    matcher = [] # @TODO: do this.
+
+class Looted(CombatLog):
+    """
+    Looted 'ow_Mineral_Info_T3_1' from 'LootCrate_Crystal1'
+    Looted 'Junk_Fuel7' from 'LootCrate_Fuel_Dynamic'
+    Looted 'ow_Afterburner_catalyst' from 'LootCrate_T3_Junk'
+    """
+    __slots__ = CombatLog.__slots__
+    matcher = [] # @TODO: do this.
 
 class UserEvent(CombatLog):
     """ special class for combat logs that might be associated with the playing player """
     __slots__ = CombatLog.__slots__
     @classmethod
     def _log_handler(cls, log):
-        if log.get('log', '').strip():
+        line =  log.get('log', '').strip()
+        if line and 'earned medal' in line:
             return True
+        elif line:
+            print line
         return False
 
 # Action?
@@ -197,6 +223,8 @@ COMBAT_LOGS = [ Apply, Damage, Spawn, Spell, Reward, Participant, Rocket, Heal,
                Gameplay, #?
                Scores,
                Killed, Captured, AddStack, Cancel,
-               GameEvent, UserEvent
+               PVE_Mission, Looted,
+               GameEvent, UserEvent,
+               Stacktrace,
                ]
 

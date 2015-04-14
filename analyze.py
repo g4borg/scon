@@ -30,8 +30,10 @@ if __name__ == '__main__':
     rex_combat = {}
     rex_game = {}
     rex_chat = {}
+    LOG_GOOD = True
     for logf in coll.sessions:
         logf.parse_files(['game.log', 'combat.log', 'chat.log'])
+        
         print "----- Log %s -----" % logf.idstr
         if logf.combat_log:
             for l in logf.combat_log.lines:
@@ -39,10 +41,11 @@ if __name__ == '__main__':
                     #print l
                     rex_combat['dict'] = rex_combat.get('dict', 0) + 1
                 else:
-                    if not l.unpack():
+                    if not l.unpack() or LOG_GOOD:
                         rex_combat[l.__class__.__name__] = rex_combat.get(l.__class__.__name__, 0) + 1
                         if not isinstance(l, combat.UserEvent):
-                            print l.values['log']
+                            if not LOG_GOOD:
+                                print l.values['log']
         if logf.game_log:
             for l in logf.game_log.lines:
                 if isinstance(l, dict):
@@ -50,11 +53,12 @@ if __name__ == '__main__':
                 elif isinstance(l, str):
                     print l
                 else:
-                    if l.unpack():
+                    if l.unpack() and not LOG_GOOD:
                         pass
                     else:
                         rex_game[l.__class__.__name__] = rex_game.get(l.__class__.__name__, 0) + 1
-                        print l.values['log']
+                        if not LOG_GOOD:
+                            print l.values['log']
         if logf.chat_log:
             for l in logf.chat_log.lines:
                 if isinstance(l, dict):
@@ -62,11 +66,13 @@ if __name__ == '__main__':
                 elif isinstance(l, str):
                     print l
                 else:
-                    if l.unpack():
+                    if l.unpack() and not LOG_GOOD:
                         pass
                     else:
                         rex_chat[l.__class__.__name__] = rex_chat.get(l.__class__.__name__, 0) + 1
-                        print l.values['log']
+                        if not LOG_GOOD:
+                            print l.values['log']
+        logf.clean(True)
     print 'Analysis complete:'
     print '#'*20+' RexCombat ' + '#' *20
     print rex_combat
