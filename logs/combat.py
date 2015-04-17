@@ -59,7 +59,7 @@ class CombatLog(Log):
                     return True
         # unknown?
         if not isinstance(self, UserEvent):
-            logging.warning('Unknown Packet for %s: "%s"' % (self.__class__.__name__, 
+            logging.warning('Unknown Packet for %s:\n%s' % (self.__class__.__name__, 
                                                              self.values.get('log', '')))
         # trash if unknown or no matcher.
         self.trash = True
@@ -114,7 +114,7 @@ class Reward(CombatLog):
 
 class Participant(CombatLog):
     __slots__ = CombatLog.__slots__
-    matcher = re.compile(r"^\s+Participant\s+(?P<source_name>[^\s]+)(?:\s{2}(?P<ship_class>\w+)|\s{30,})\s+(?:totalDamage\s(?P<total_damage>(?:\d+|\d+\.\d+));\smostDamageWith\s'(?P<module_class>[^']+)';(?P<additional>.*)|<(?P<other>\w+)>)")
+    matcher = re.compile(r"^\s+Participant\s+(?P<source_name>[^\s]+)(?:\s+(?P<ship_class>\w+)|\s{30,})\s+(?:totalDamage\s(?P<total_damage>(?:\d+|\d+\.\d+));\s+|\s+)(?:mostDamageWith\s'(?P<module_class>[^']+)';\s*(?P<additional>.*)|<(?P<other>\w+)>)")
 
 class Rocket(CombatLog):
     __slots__ = CombatLog.__slots__
@@ -155,17 +155,10 @@ class Scores(CombatLog):
 
 class Uncaptured(CombatLog):
     """
-Uncaptured 'VitalPoint_Beacon3_RC'(team 1). Attackers: bergg 10101
-Uncaptured 'VitalPoint_Beacon2_RC'(team 1). Attackers: kuja cmdrey
-Uncaptured 'VitalPoint_Beacon1_RC'(team 2). Attackers: UnknownAgent
-Uncaptured 'VitalPoint_Beacon1_RC_King'(team 2). Attackers: OregyenDuero CaptainX11 g4borg vacknishkara tatsar46359 (bot)Nicholas (bot)Helen
-Uncaptured 'VitalPoint_Beacon1_RC_King'(team 2). Attackers: g4borg (bot)Nicholas
-Uncaptured 'VitalPoint_Beacon3_RC_King'(team 2). Attackers: g4borg
-Uncaptured 'VitalPoint_Beacon2_SS'(team 2). Attackers: CaptainX11 g4borg Targeht Dvorkin
-Uncaptured 'VitalPoint_Beacon3_RC'(team 1). Attackers: mnsMonty
-Uncaptured 'VitalPoint_Beacon1_RC'(team 1). Attackers: OregyenDuero g4borg manbearpig10261
-Uncaptured 'VitalPoint_Beacon2_RC'(team 2). Attackers: yeahalex BlueSea
-Uncaptured 'VitalPoint_Beacon3_RC'(team 2). Attackers: Cordierit
+        Variables:
+        - objective (which was uncaptured (most likely something like VitalPointXY))
+        - team (number)
+        - attackers (split by space, names of the attackers, contains bots)
     """
     __slots__ = CombatLog.__slots__
     matcher = re.compile(r"^Uncaptured\s'(?P<objective>[^']+)'\(team\s(?P<team>\d+)\)\.(?:\sAttackers\:\s(?P<attackers>.*)|)")
@@ -214,36 +207,39 @@ class GameEvent(CombatLog):
 
 class PVE_Mission(CombatLog):
     """
-    PVE_Mission: 'bigship_building_normal'. start round 1/3
-    PVE_Mission: 'bigship_building_normal'. round 1/3. start wave 1/3
-    PVE_Mission: 'bigship_building_normal'. round 1/3. start wave 2/3
-    PVE_Mission: 'bigship_building_normal'. round 1/3. start wave 3/3
+     - mission: contains the mission id.
+     - message: contains the pve mission message, like starting rounds, waves, etc.
     """
     __slots__ = CombatLog.__slots__
-    matcher = [] # @TODO: do this.
+    matcher = re.compile("^PVE_Mission:\s'(?P<mission>[^']+)'.\s(?P<message>.*)") # this is very general, but we dont care for pve now.
 
 class Looted(CombatLog):
     """
-    Looted 'ow_Mineral_Info_T3_1' from 'LootCrate_Crystal1'
-    Looted 'Junk_Fuel7' from 'LootCrate_Fuel_Dynamic'
-    Looted 'ow_Afterburner_catalyst' from 'LootCrate_T3_Junk'
+    called on looting in openspace.
+    - loot contains the loot id.
+    - container contains the container looted from.
     """
     __slots__ = CombatLog.__slots__
-    matcher = [] # @TODO: do this.
+    matcher = re.compile("^Looted\s'(?P<loot>[^']+)'\sfrom\s'(?P<container>[^']+)'")
 
 class Dropped(CombatLog):
     """
     called on dropping in openspace.
+     - loot contains the loot id. it can be '<all>'
     """
     __slots__ = CombatLog.__slots__
-    matcher = [] # @TODO: do this.
+    matcher = re.compile("^Dropped\sloot\s'(?P<loot>[^']+)'")
 
 class Set(CombatLog):
     """
     called on setting "relationship" / OpenSpace
+    Variables in values:
+     - what (relationship)
+     - name (who do i set?)
+     - value (to what value?)
     """
     __slots__ = CombatLog.__slots__
-    matcher = [] #@TODO: do this.
+    matcher = re.compile("^Set\s(?P<what>\w+)\s(?P<name>[^\s]+)\sto\s(?P<value>\w+)")
 
 class UserEvent(CombatLog):
     """ special class for combat logs that might be associated with the playing player """
@@ -254,7 +250,7 @@ class UserEvent(CombatLog):
         if line and 'earned medal' in line:
             return True
         elif line:
-            logging.debug('UserEvent saw unknown line: %s' % line)
+            logging.debug('UserEvent saw unknown line:\n%s' % line)
         return False
 
 # Action?
