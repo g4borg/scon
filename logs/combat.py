@@ -27,14 +27,14 @@ class CombatLog(Log):
     __slots__ = Log.__slots__ + [ '_match_id', 'values']
     @classmethod
     def _log_handler(cls, log):
-        if log.get('log', '').strip().startswith(cls.__name__):
+        if log.startswith(cls.__name__):
             return True
         return False
     
     @classmethod
     def is_handler(cls, log):
         if log.get('logtype', None) == L_CMBT:
-            return cls._log_handler(log)
+            return cls._log_handler(log.get('log', '').strip())
         return False
     
     def __init__(self, values=None):
@@ -177,7 +177,7 @@ class GameEvent(CombatLog):
     
     @classmethod
     def _log_handler(cls, log):
-        if log.get('log', '').strip().startswith('======='):
+        if log.startswith('======='):
             return True
         return False
     
@@ -241,16 +241,35 @@ class Set(CombatLog):
     __slots__ = CombatLog.__slots__
     matcher = re.compile("^Set\s(?P<what>\w+)\s(?P<name>[^\s]+)\sto\s(?P<value>\w+)")
 
+class SqIdChange(CombatLog):
+    """ - number: player number
+        - name: player name
+        - old_sqid: sqid of player before
+        - sqid: new player sqid
+    """
+    __slots__ = CombatLog.__slots__
+    matcher = re.compile("^Player\s(?P<number>\d+)\((?P<name>[^\)]+)\)\schanged\ssqid\sfrom\s(?P<old_sqid>\d+)\sto\s(?P<sqid>\d+)")
+    
+    @classmethod
+    def _log_handler(cls, log):
+        if log.startswith('Player'):
+            return True
+        return False
+
+class Mailed(CombatLog):
+    """ has no information. only that loot has been mailed """
+    __slots__ = CombatLog.__slots__
+    matcher = re.compile("Mailed\sloot")
+
 class UserEvent(CombatLog):
     """ special class for combat logs that might be associated with the playing player """
     __slots__ = CombatLog.__slots__
     @classmethod
     def _log_handler(cls, log):
-        line =  log.get('log', '').strip()
-        if line and 'earned medal' in line:
+        if log and 'earned medal' in log:
             return True
-        elif line:
-            logging.debug('UserEvent saw unknown line:\n%s' % line)
+        elif log:
+            logging.debug('UserEvent saw unknown line:\n%s' % log)
         return False
 
 # Action?
@@ -260,7 +279,7 @@ COMBAT_LOGS = [ Apply, Damage, Spawn, Spell, Reward, Participant, Rocket, Heal,
                Killed, Captured, AddStack, Cancel, Uncaptured,
                # undone openspace:
                PVE_Mission, Looted, Set, Dropped,
-               
+               SqIdChange, Mailed, # unknown if these are important...
                # always last:
                GameEvent, UserEvent,
                Stacktrace,
