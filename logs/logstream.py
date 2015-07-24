@@ -1,6 +1,3 @@
-
-
-# LogStream
 """
     A LogStream is supposed to:
      - parse data feeded into it.
@@ -51,6 +48,7 @@ class LogStream(object):
         # finish: override and yield all packets to finish.
         pass
     
+    #####################################################################
     def has_data(self):
         if self._data:
             return True
