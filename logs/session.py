@@ -15,7 +15,8 @@ class LogSession(object):
 class LogFileSession(LogSession):
     """
         The Log-File-Session is supposed to save one directory of logs.
-        It can parse its logs, and build up its internal structure into Battle Instances etc.
+        It can parse its logs, and should become able to build up its internal 
+        structure into Battle Instances etc.
     """
     VALID_FILES = ['combat.log', 'game.log', 'chat.log' ] # extend this to other logs.
     
@@ -147,6 +148,15 @@ class LogFileSession(LogSession):
         return found
 
 class LogSessionCollector(object):
+    """
+        finds sessions in a directory, a.k.a. you load the log directories
+        of SC into sessions.
+        
+        - find_sessions: only find and instantiate sessions.
+        - collect: validates each found session and returns them as list.
+        - collect_unique: instead of a list, a dict is returned, where each
+        session can be accessed via its idstr. does not parse/validate sessions.
+    """
     def __init__(self, directory):
         self.initial_directory = directory
         self.sessions = []
