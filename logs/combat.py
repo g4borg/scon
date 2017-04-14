@@ -116,6 +116,23 @@ class Participant(CombatLog):
     __slots__ = CombatLog.__slots__
     matcher = re.compile(r"^\s+Participant\s+(?P<source_name>[^\s]+)(?:\s+(?P<ship_class>\w+)|\s{30,})\s+(?:totalDamage\s(?P<total_damage>(?:\d+|\d+\.\d+));\s+|\s+)(?:mostDamageWith\s'(?P<module_class>[^']+)';\s*(?P<additional>.*)|<(?P<other>\w+)>)")
 
+"""
+2017-03-29 13:25:49 - Unknown Packet for Rocket:
+Rocket launch 18912, owner 'LOSNAR', def 'SpaceMissile_Barrage_T5_Mk3', target 'white213mouse' (17894)
+2017-03-29 13:25:49 - Unknown Packet for Rocket:
+Rocket detonation 18912, owner 'LOSNAR', def 'SpaceMissile_Barrage_T5_Mk3', reason 'auto_detonate', directHit 'white213mouse'
+2017-03-29 13:25:49 - Unknown Packet for Rocket:
+Rocket launch 18966, owner 'LOSNAR', def 'SpaceMissile_Barrage_T5_Mk3', target 'white213mouse' (17894)
+2017-03-29 13:25:49 - Unknown Packet for Rocket:
+Rocket detonation 18966, owner 'LOSNAR', def 'SpaceMissile_Barrage_T5_Mk3', reason 'auto_detonate', directHit 'white213mouse'
+2017-03-29 13:25:49 - Unknown Packet for Rocket:
+Rocket detonation 18892, owner 'LOSNAR', def 'SpaceMissile_Barrage_T5_Mk3', reason 'ttl'
+2017-03-29 13:25:49 - Unknown Packet for Rocket:
+Rocket detonation 18931, owner 'optimistik', def 'Weapon_Railgun_Heavy_T5_Epic', reason 'hit'
+2017-03-29 13:25:49 - Unknown Packet for Participant:
+   Participant    white213mouse     Ship_Race5_M_ATTACK_Rank15   
+"""
+
 class Rocket(CombatLog):
     __slots__ = CombatLog.__slots__
     matcher = re.compile(r"^Rocket\s(?P<event>launch|detonation)\.\sowner\s'(?P<name>[^']+)'(?:,\s(?:def\s'(?P<missile_type>\w+)'|target\s'(?P<target>[^']+)'|reason\s'(?P<reason>\w+)'|directHit\s'(?P<direct_hit>[^']+)'))+")

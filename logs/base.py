@@ -17,6 +17,13 @@ import logging
     reviewed is an internal boolean, which supposed to be saved on successful unpack, unpack should ignore already unpacked logs.
     matcher is a regex object to match, or a list of them.
     trash is a boolean flag to indicate, this log is possibly unknown information or unneeded, and should be removed or ignored.
+    
+    -> Note for anyone creating new subclasses for parsing: 
+        All classes are to be __slot__-ed so they can be created more efficiently by python. 
+        A class without __slot__ will slow down parsing exponentially in CPython. 
+        __slots__ hinder you to add new properties on the fly in the code, but having this immutable class optimizes memory allocation.
+        
+        This is the reason, the base layout of the log object is explained here.
 """
 
 
