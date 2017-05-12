@@ -22,4 +22,4 @@ R_SCLOG = re.compile(RE_SCLOG)
 for line in Lines:
     m = R_SCLOG.match(line)
     if m:
-        print m.groups()
+        print((m.groups()))

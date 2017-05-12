@@ -13,13 +13,13 @@ class Settings(dict):
                                      'My Games',
                                      'StarConflict',)
         elif system == 'Linux':
-            raise NotImplementedError, "Implement Linux!"
+            raise NotImplementedError("Implement Linux!")
         elif system == 'Darwin':
-            raise NotImplementedError, "Implement Mac!"
+            raise NotImplementedError("Implement Mac!")
         else:
-            raise NotImplementedError, "Unknown System! %s" % platform.system()
+            raise NotImplementedError("Unknown System! %s" % platform.system())
         if not os.path.exists(d) or not os.path.isdir(d):
-            raise Exception, "Configuration Autodetection failed. "
+            raise Exception("Configuration Autodetection failed. ")
         self['root_path'] = d
         
     def get_path(self):

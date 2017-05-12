@@ -13,7 +13,7 @@ import sys
 from PyQt4 import QtCore, QtGui, QtWebKit, QtNetwork
 from scon.dejaqt.folders import FolderLibrary
 from scon.dejaqt.qweb import DejaWebView
-from treeview import TreeViewModel, Node
+from .treeview import TreeViewModel, Node
 
 class MenuTree(QtGui.QTreeView):
     def __init__(self, *args, **kwargs):

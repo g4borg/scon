@@ -4,9 +4,9 @@
 """
 import os, sys, logging
 import sys
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 from PyQt4 import QtCore, QtGui
-from monitor import SconMonitor
+from .monitor import SconMonitor
 from PyQt4.QtCore import QObject, pyqtSignal, pyqtSlot
 
 
@@ -46,7 +46,7 @@ class MainWindow(QtGui.QWidget):
     
     
     def notify_filelines(self, filename, lines):
-        if filename not in self.tabs.keys():
+        if filename not in list(self.tabs.keys()):
             new_tab = QtGui.QWidget()
             new_tab.list_widget = QtGui.QListWidget()
             layout = QtGui.QVBoxLayout(new_tab)
@@ -57,9 +57,9 @@ class MainWindow(QtGui.QWidget):
     
     def notify_created(self, filename, is_directory):
         if is_directory:
-            print "Created Directory %s" % filename
+            print(("Created Directory %s" % filename))
         else:
-            print "Created File %s" % filename
+            print(("Created File %s" % filename))
 
     def start_monitor(self):
         self.button.setDisabled(True)

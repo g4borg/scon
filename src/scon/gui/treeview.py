@@ -439,6 +439,6 @@ if __name__ == '__main__':
 /home/user/Projects/Learning/LearningQt/LearningQt80.png'''
     nodes = get_filelist_nodes(files.split('\n'))
     for n in nodes:
-        print n
+        print(n)
     dev_show_file_list(nodes)
     

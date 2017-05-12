@@ -20,7 +20,7 @@
     01:04:38.805 CMBT   | 
 """
 import re
-from base import Log, L_CMBT, Stacktrace
+from .base import Log, L_CMBT, Stacktrace
 import logging
 
 class CombatLog(Log):
@@ -69,7 +69,7 @@ class CombatLog(Log):
         return self.values.get('log', 'Unknown Combat Log')
     
     def clean(self):
-        if 'log' in self.values.keys():
+        if 'log' in list(self.values.keys()):
             del self.values['log']
 
                 
@@ -219,7 +219,7 @@ class GameEvent(CombatLog):
         self.trash = True
     
     def clean(self):
-        if 'log' in self.values.keys():
+        if 'log' in list(self.values.keys()):
             del self.values['log']
 
 class PVE_Mission(CombatLog):

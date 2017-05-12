@@ -4,9 +4,9 @@
 import os, logging
 from PyQt4 import QtCore, QtGui, QtWebKit, QtNetwork
 from django.test import Client
-from folders import FolderLibrary
+from .folders import FolderLibrary
 from django.http.request import QueryDict
-from urlparse import urlparse, parse_qs
+from urllib.parse import urlparse, parse_qs
 import cgi
 from io import BytesIO
 from django.http.multipartparser import MultiPartParser
@@ -126,7 +126,7 @@ class ResourceReply(BasePageReply):
         
     def initialize_content(self, url, operation):
         # determine folder:
-        path = unicode(url.path()).lstrip('/')
+        path = str(url.path()).lstrip('/')
         folders = getattr(self.parent(), 'folders')
         if folders:
             path = folders.matched_folder(path)
@@ -156,7 +156,7 @@ class PageReply(ResourceReply):
             c = Client()
         logging.info( "Response for %s, method %s" % (url.path(), operation) )
         if operation == DejaNetworkAccessManager.GetOperation:
-            response = c.get(unicode(url.path()), follow=True )
+            response = c.get(str(url.path()), follow=True )
         elif operation == DejaNetworkAccessManager.PostOperation:
             ct = str(self.request.rawHeader('Content-Type'))
             cl = str(self.request.rawHeader('Content-Length'))
@@ -170,11 +170,11 @@ class PageReply(ResourceReply):
                                  },
                                 b,
                                 []).parse()
-                response = c.post(unicode(url.path()), q, follow=True)
+                response = c.post(str(url.path()), q, follow=True)
             else:
                 # assume post data.
                 q = QueryDict( s )
-                response = c.post(unicode(url.path()), q, follow=True)
+                response = c.post(str(url.path()), q, follow=True)
         self.content_type = response.get('Content-Type', self.content_type)
         # response code
         #print "Response Status: %s" % response.status_code

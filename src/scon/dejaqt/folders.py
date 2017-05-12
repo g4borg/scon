@@ -31,7 +31,7 @@ class FolderLibrary(object):
     folders = property(get_folders, set_folders)
     
     def build_keycache(self):
-        self._keys = self._folders.keys()
+        self._keys = list(self._folders.keys())
         self._keys.sort(key=lambda item: (-len(item), item))
     
     def add_folder(self, url, folder):
@@ -59,10 +59,10 @@ class FolderLibrary(object):
                 logging.error('%s does not seem to be a subpath of %s' % (real_folder, folder))
         
     def print_folders(self):
-        print '{'
+        print('{')
         for k in self._keys:
-            print "'%s': '%s'," % (k, self._folders[k])
-        print '}'
+            print(("'%s': '%s'," % (k, self._folders[k])))
+        print('}')
     
 
 if __name__ == "__main__":
@@ -80,5 +80,5 @@ if __name__ == "__main__":
     f.add_folder('abc/dub/', 'c:/dubdub')
     f.print_folders()
     
-    print f.matched_folder('abc/dab/okokok/some.png')
+    print((f.matched_folder('abc/dab/okokok/some.png')))
     

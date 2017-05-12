@@ -101,13 +101,13 @@ class BasePageReply(QtNetwork.QNetworkReply):
 class PageReply(BasePageReply):
     def initialize_content(self, url, operation):
         c = Client()
-        print "Response for %s, method %s" % (url.path(), operation)
+        print(("Response for %s, method %s" % (url.path(), operation)))
         if operation == LocalNetworkAccessManager.GetOperation:
-            response = c.get(unicode(url.path()), )
+            response = c.get(str(url.path()), )
         elif operation == LocalNetworkAccessManager.PostOperation:
-            response = c.post(unicode(url.path()))
+            response = c.post(str(url.path()))
         # response code
-        print "Response Status: %s" % response.status_code
+        print(("Response Status: %s" % response.status_code))
         # note: on a 404, we might need to trigger file response.
         return response.content
 
@@ -129,7 +129,7 @@ class ImageReply(BasePageReply):
         BasePageReply.__init__(self, parent, url, operation)
         
     def initialize_content(self, url, operation):
-        path = os.path.join(self.basedir, unicode(url.path()).lstrip('/'))
+        path = os.path.join(self.basedir, str(url.path()).lstrip('/'))
         if not os.path.exists(path):
             logging.error('Image does not exist: %s' % path)
             return ''

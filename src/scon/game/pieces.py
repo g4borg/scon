@@ -49,15 +49,15 @@ class ShipInstance(object):
         krs = (self.shield_max/100.0 * self.shield_res_kn)
         ers = (self.shield_max/100.0 * self.shield_res_em)
         trs = (self.shield_max/100.0 * self.shield_res_th)
-        print "Shield.", krs, ers, trs
+        print(("Shield.", krs, ers, trs))
         
         krh = (self.hull_max/100.0 * self.hull_res_kn)
         erh = (self.hull_max/100.0 * self.hull_res_em)
         trh = (self.hull_max/100.0 * self.hull_res_th)
-        print "Hull.", krh, erh, trh
+        print(("Hull.", krh, erh, trh))
         
         #print "?1", ((krs+ers+trs+krh+erh+trh)/6.0)+self.shield_max + self.hull_max
-        print "?2", ((krs+ers+trs+3*self.shield_max)/3.0)+((krh+erh+trh+3*self.hull_max)/3.0)
+        print(("?2", ((krs+ers+trs+3*self.shield_max)/3.0)+((krh+erh+trh+3*self.hull_max)/3.0)))
         
         
         # another try:
@@ -65,25 +65,25 @@ class ShipInstance(object):
             lets assume survivability is really measured through applying 1000 dps for 10 secs.
             
         """
-        print "Assuming dps..."
+        print("Assuming dps...")
         shield = self.shield_max
         hull = self.hull_max
         r1s = shield / (1.0*dam_res(1000, self.shield_res_kn))
         r2s = shield / (1.0*dam_res(1000, self.shield_res_em))
         r3s = shield / (1.0*dam_res(1000, self.shield_res_th))
-        print r1s, r2s, r3s
+        print((r1s, r2s, r3s))
         rXs = (r1s+r2s+r3s) / 3.0
-        print "Shield survival time at 1kdps", rXs
+        print(("Shield survival time at 1kdps", rXs))
 
         r1h = hull / (1.0*dam_res(1000, self.hull_res_kn))
         r2h = hull / (1.0*dam_res(1000, self.hull_res_em))
         r3h = hull / (1.0*dam_res(1000, self.hull_res_th))
-        print r1h, r2h, r3h
+        print((r1h, r2h, r3h))
         rXh = (r1h+r2h+r3h) / 3.0
-        print "Hull survival time at 1kdps", rXh
+        print(("Hull survival time at 1kdps", rXh))
         
-        print "Total survival time ", rXs + rXh, " sec"
-        print "Surv should be ", int(round((rXs+rXh) * 1000))
+        print(("Total survival time ", rXs + rXh, " sec"))
+        print(("Surv should be ", int(round((rXs+rXh) * 1000))))
         
         
         
@@ -92,9 +92,9 @@ class ShipInstance(object):
     
 
 ship = ShipInstance()
-print ship.survivability()
+print((ship.survivability()))
 
-print "#" * 80
+print(("#" * 80))
 mykatanas=ShipInstance(7664, 4296, (70,61,100), (20,80,50))
-print "We know its 19736... but own calcs say..."
-print mykatanas.survivability()
+print("We know its 19736... but own calcs say...")
+print((mykatanas.survivability()))

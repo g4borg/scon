@@ -49,20 +49,20 @@ def backup_log_directory(log_directory, backup_directory, compress=True,
                                  full_dir)
                         logging.info('Backed up %s' % directory)
                         if verbose:
-                            print "Backed up %s" % directory
+                            print(("Backed up %s" % directory))
                     else:
                         if verbose:
-                            print "Directory Raw Backup not implemented yet."
+                            print("Directory Raw Backup not implemented yet.")
                         raise NotImplementedError
         else:
             if verbose:
-                print "%s is not a directory." % full_dir
+                print(("%s is not a directory." % full_dir))
     if verbose and nothing_found:
-        print "Nothing to backup found in %s" % log_directory
+        print(("Nothing to backup found in %s" % log_directory))
 
 
 if __name__ == '__main__':
-    print "Performing Log Backup (Dev)"
+    print("Performing Log Backup (Dev)")
     log_source = os.path.join(os.path.expanduser('~'),
                               'Documents', 'My Games', 'StarConflict', 'logs')
     log_dest = os.path.join(os.path.expanduser('~'),

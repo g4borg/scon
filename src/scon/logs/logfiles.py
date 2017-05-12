@@ -4,10 +4,10 @@
     Resolves Logs.
 """
 
-from logfile import LogFile
-from combat import COMBAT_LOGS
-from game import GAME_LOGS
-from chat import CHAT_LOGS
+from .logfile import LogFile
+from .combat import COMBAT_LOGS
+from .game import GAME_LOGS
+from .chat import CHAT_LOGS
 
 class LogFileResolver(LogFile):
     ''' dynamic logfile resolver '''

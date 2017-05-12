@@ -71,8 +71,8 @@ class LogStream(object):
                             l.clean()
                         lines.append(l)
                     else:
-                        print type(l)
-                        print l
+                        print((type(l)))
+                        print(l)
         self.lines = lines
         self._unset_data()
 
@@ -82,7 +82,7 @@ class LogStream(object):
         self._data = None
         
     def pre_parse_line(self, line):
-        if not isinstance(line, basestring):
+        if not isinstance(line, str):
             return line
         elif line.startswith('---'):
             return None
@@ -95,7 +95,7 @@ class LogStream(object):
             m = R_SCLOG.match(line)
             if m:
                 g = m.groupdict()
-                if 'logtype' in g.keys():
+                if 'logtype' in list(g.keys()):
                     g['logtype'] = g['logtype'].strip()
                 return g
             else:
@@ -106,7 +106,7 @@ class LogStream(object):
         # add the line to my lines.
         if line is not None:
             o = line
-            if isinstance(line, basestring):
+            if isinstance(line, str):
                 # Unknown Log?
                 if not line:
                     return

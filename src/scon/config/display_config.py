@@ -2,7 +2,7 @@
     Simple brainstorm to display a config file.
 """
 import os, logging
-from settings import settings
+from .settings import settings
 logging.basicConfig(level=logging.INFO)
 # import ET:
 try:
@@ -22,7 +22,7 @@ except ImportError:
             logging.info('Using xml.ElementTree')
 finally:
     if not ET:
-        raise NotImplementedError, "XML Parser not found in your Python."
+        raise NotImplementedError("XML Parser not found in your Python.")
 ##################################################################################################
 
 class ConfigFile(object):
@@ -53,7 +53,7 @@ class ConfigFile(object):
     def pprint(self):
         # print out my cvars
         for child in self.cvars:
-            print '%s = %s' % (child.tag, child.attrib['val'])
+            print(('%s = %s' % (child.tag, child.attrib['val'])))
     
     def write(self, filename):
         output = '<?xml version="1.0"?>\n'
@@ -63,7 +63,7 @@ class ConfigFile(object):
         def append_node(node, depth=0):
             # xml serializing helper function...
             s = ['%s<%s' % (' '*depth*2, node.tag),]
-            for key, val in node.attrib.items():
+            for key, val in list(node.attrib.items()):
                 s.append(' %s="%s"' % (key, val))
             if len(node):
                 s.append('>\n')
@@ -108,12 +108,12 @@ if __name__ == '__main__':
     # Read the config
     settings.autodetect()
     c = ConfigFile().open()
-    print '#' * 80
-    print "Output File would be:"
-    print c.write(None)
-    print '#' * 80
-    print "Detected Settings:"
+    print(('#' * 80))
+    print("Output File would be:")
+    print((c.write(None)))
+    print(('#' * 80))
+    print("Detected Settings:")
     c.pprint()
-    print '#' * 80
-    print 'Serializing Test successful: %s' % c.debug_serializing()
+    print(('#' * 80))
+    print(('Serializing Test successful: %s' % c.debug_serializing()))
     

@@ -16,8 +16,8 @@
 """
 #from win32com.shell import shell, shellcon
 import os, sys, logging
-from logs.logfiles import LogFileResolver as LogFile
-from logs import combat
+from .logs.logfiles import LogFileResolver as LogFile
+from .logs import combat
 
 # for windows its kinda this:
 settings = {'root_path': os.path.join(os.path.expanduser('~'),
@@ -78,8 +78,8 @@ if __name__ == '__main__':
                 if not l.unpack():
                     rex[l.__class__.__name__] = rex.get(l.__class__.__name__, 0) + 1
                     if not isinstance(l, combat.UserEvent):
-                        print l.values['log']
+                        print((l.values['log']))
                 #f.write(l.values['log'] + '\n')
     #f.close()
             #print type(l)
-    print rex
+    print(rex)

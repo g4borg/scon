@@ -68,7 +68,7 @@ class GameLog(Log):
         self.reviewed = False
     
     def clean(self):
-        if 'log' in self.values.keys():
+        if 'log' in list(self.values.keys()):
             del self.values['log']
     
     def unpack(self, force=False):

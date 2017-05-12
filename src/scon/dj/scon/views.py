@@ -2,8 +2,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import RequestContext, loader
-import logic
-import models
+from . import logic
+from . import models
 
 def config(request):
     t = loader.get_template('scon/config.html')

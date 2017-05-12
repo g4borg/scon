@@ -16,7 +16,7 @@ def build_pk_cache(data, models=None):
     pk_cache = {}
     # fill cache from existing
     for d in data:
-        if 'pk' in d.keys():
+        if 'pk' in list(d.keys()):
             # has pk
             pk_cache[d['model']] = max(pk_cache.get('model', 0), d['pk'])
     for d in data:
@@ -24,11 +24,11 @@ def build_pk_cache(data, models=None):
         if models:
             if m not in models:
                 continue
-        if 'pk' in d.keys():
+        if 'pk' in list(d.keys()):
             #print "PK was already in there! %s" % d
             pass
         else:
-            if m not in pk_cache.keys():
+            if m not in list(pk_cache.keys()):
                 pk_cache[m] = 1
                 i = 1
             else:
@@ -43,7 +43,7 @@ def lookup_pk(data, name, mdl='scon.item', kwargs=None):
             if d['fields'].get('name', '').lower() == name.lower():
                 found = True
                 if kwargs is not None:
-                    for key, val in kwargs.items():
+                    for key, val in list(kwargs.items()):
                         if not d['fields'].get(key, None) == val:
                             found = False
                 if found:
@@ -559,7 +559,7 @@ def generate_fixtures():
                 item = recipee
                 kwargs = None
                 if isinstance(item, tuple) or isinstance(item, list):
-                    print item
+                    print(item)
                     kwargs = item[1]
                     item = item[0]
                     
@@ -587,6 +587,6 @@ if __name__ == "__main__":
     # check pks:
     for d in fixes:
         if d.get('pk', None) is None:
-            print "%s is fail." % d
+            print(("%s is fail." % d))
     
     write_fixture(fixes)

@@ -54,7 +54,7 @@ class ChatLog(Log):
         return self.values.get('log', 'Unknown Chat Log')
     
     def clean(self):
-        if 'log' in self.values.keys():
+        if 'log' in list(self.values.keys()):
             del self.values['log']
 
 class SystemMessage(ChatLog):
@@ -71,7 +71,7 @@ class SystemMessage(ChatLog):
     
     def append(self, something):
         ''' System Messages accept appends '''
-        if 'message' in self.values.keys():
+        if 'message' in list(self.values.keys()):
             self.values['message'] = '%s\n%s' % (self.values['message'], something)
             return True
 
@@ -91,7 +91,7 @@ class PrivateMessageReceived(ChatLog):
     
     def append(self, something):
         ''' Private Messages accept appends '''
-        if 'message' in self.values.keys():
+        if 'message' in list(self.values.keys()):
             self.values['message'] = '%s\n%s' % (self.values['message'], something)
             return True
 
@@ -109,7 +109,7 @@ class PrivateMessageSent(ChatLog):
     
     def append(self, something):
         ''' Private Messages accept appends '''
-        if 'message' in self.values.keys():
+        if 'message' in list(self.values.keys()):
             self.values['message'] = '%s\n%s' % (self.values['message'], something)
             return True
 
@@ -127,8 +127,8 @@ class ChatMessage(ChatLog):
     
     def append(self, something):
         ''' ChatMessages accept appends '''
-        if not 'message' in self.values.keys():
-            print "Missing message? %s" % self.values
+        if not 'message' in list(self.values.keys()):
+            print(("Missing message? %s" % self.values))
             self.values['message'] = ''    
         self.values['message'] = '%s\n%s' % (self.values['message'], something)
         return True 

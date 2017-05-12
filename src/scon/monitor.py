@@ -83,14 +83,14 @@ class SconMonitor(object):
     
     def close(self, filename):
         # close a single file by key, does not do anything if not found.
-        if filename in self.files.keys():
+        if filename in list(self.files.keys()):
             close_file = self.files.pop(filename)
             close_file['file'].close()
             del close_file
     
     def close_all(self):
         """ closes all open files in the monitor """
-        for key in self.files.keys():
+        for key in list(self.files.keys()):
             self.close(key)
     
     def read_line(self, afile):
@@ -109,7 +109,7 @@ class SconMonitor(object):
     def do(self):
         ''' Monitor main task handler, call this in your mainloop in ~1 sec intervals '''
         # read all file changes.
-        for key, value in self.files.items():
+        for key, value in list(self.files.items()):
             lines = []
             data = self.read_line(value)
             while data is not None:

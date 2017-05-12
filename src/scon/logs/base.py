@@ -70,7 +70,7 @@ class Stacktrace(Log):
     @classmethod
     def is_handler(cls, log):
         # do i have a system crash report beginning here?
-        if isinstance(log, basestring):
+        if isinstance(log, str):
             l = log.strip()
         elif isinstance(log, dict):
             l = log.get('log', '').strip()

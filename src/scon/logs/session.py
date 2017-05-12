@@ -2,7 +2,7 @@
     Logging Session.
 """
 import zipfile, logging, os
-from logfiles import CombatLogFile, GameLogFile, ChatLogFile
+from .logfiles import CombatLogFile, GameLogFile, ChatLogFile
 
 class LogSession(object):
     """
@@ -187,7 +187,7 @@ class LogSessionCollector(object):
         self.sessions = self.collect()
         sessions_dict = {}
         for session in self.sessions:
-            if session.idstr and not session.idstr in sessions_dict.keys():
+            if session.idstr and not session.idstr in list(sessions_dict.keys()):
                 sessions_dict[session.idstr] = session
         return sessions_dict
     
@@ -203,7 +203,7 @@ if __name__ == '__main__':
     l_zip = LogFileSession('D:\\Users\\g4b\\Documents\\My Games\\sc\\2014.05.20 23.49.19.zip')
     
     l_zip.parse_files()
-    print l_zip.combat_log.lines
+    print((l_zip.combat_log.lines))
     
     collector = LogSessionCollector('D:\\Users\\g4b\\Documents\\My Games\\sc\\')
-    print collector.collect_unique()
+    print((collector.collect_unique()))
