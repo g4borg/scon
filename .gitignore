@@ -1,0 +1,47 @@
+*.pyc
+pip-log.txt
+
+# Project - exclude src but include the project. Optional.                                                                                                                                                 
+#src/*
+#!src/scon
+#!src/manage.py
+#!src/djascon
+
+# system files                                                                                                                                                   
+.DS_Store
+
+# eclipse
+.project
+.pydevproject
+.settings
+.settings/*
+
+# sqlite db files
+*.db
+
+# temp files
+*.*~
+*.tmp
+tmp/*
+local_*
+*.bak
+
+# django
+/media
+/static
+
+# VirtualEnv on Nixes.
+/lib
+/bin
+/include
+/tmp
+/local
+/man
+# VirtualEnv on Windows.
+/Include
+/Lib
+/Scripts
+
+# just to be sure.
+*.pyc
+
