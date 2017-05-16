@@ -4,10 +4,10 @@
     Tool to analyze Logs in general.
 """
 import os, sys, logging
-from .logs.logfiles import LogFileResolver as LogFile
-from .logs import combat, game, chat
-from .logs.session import LogSessionCollector
-from .logs.game import ClientInfo
+from logs.logfiles import LogFileResolver as LogFile
+from logs import combat, game, chat
+from logs.session import LogSessionCollector
+from logs.game import ClientInfo
 
 # for windows its kinda this:
 settings = {'root_path': os.path.join(os.path.expanduser('~'),
@@ -78,9 +78,12 @@ if __name__ == '__main__':
                             print((l.values['log']))
         logf.clean(True)
         # additional cleanup:
-        logf.chat_log.lines = []
-        logf.game_log.lines = []
-        logf.combat_log.lines = []
+        if logf.chat_log:
+            logf.chat_log.lines = []
+        if logf.game_log:
+            logf.game_log.lines = []
+        if logf.combat_log:
+            logf.combat_log.lines = []
     print('Analysis complete:')
     print(('#'*20+' RexCombat ' + '#' *20))
     print(rex_combat)

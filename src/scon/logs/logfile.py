@@ -9,7 +9,7 @@
     data by setting the LogFile<instance>._data yourself.
 """
 from .logstream import LogStream
-
+import io, logging
 
 class LogFile(LogStream):
     def __init__(self, fname=None,
@@ -22,8 +22,10 @@ class LogFile(LogStream):
     def read(self, fname=None):
         fname = fname or self.fname
         try:
-            f = open(fname, 'r')
+            f = io.open(fname, 'r', )
             self.set_data(f.read())
+        except Exception as e:
+            logging.error("Error %s reading file %s " % (e, fname, ))
         finally:
             f.close()
         

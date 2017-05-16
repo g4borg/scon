@@ -38,6 +38,7 @@ class CombatLog(Log):
         return False
     
     def __init__(self, values=None):
+        super(CombatLog, self).__init__()
         self.values = values or {}
         self.reviewed = False
     

@@ -14,7 +14,7 @@ between 33-33-33 and FF-33 FF-33 FF-33
 """
 
 class ChatLog(Log):
-    __slots__ = ['matcher', 'trash', '_match_id', 'values']
+    __slots__ = Log.__slots__ + ['_match_id', 'values']
     
     @classmethod
     def is_handler(cls, log):
@@ -27,6 +27,7 @@ class ChatLog(Log):
         return False
     
     def __init__(self, values=None):
+        super(ChatLog, self).__init__()
         self.values = values or {}
         self.reviewed = False
     

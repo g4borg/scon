@@ -52,7 +52,7 @@ Interesting Lines:
 """
 
 class GameLog(Log):
-    __slots__ = ['matcher', 'trash', '_match_id', 'values']
+    __slots__ = Log.__slots__ + [ '_match_id', 'values']
     @classmethod
     def is_handler(cls, log):
         if log.get('logtype', None) == '': # we handle only logs with empty logtype.
@@ -64,6 +64,7 @@ class GameLog(Log):
         return False
     
     def __init__(self, values=None):
+        super(GameLog, self).__init__()
         self.values = values
         self.reviewed = False
     
@@ -95,7 +96,7 @@ class GameLog(Log):
         return self.values.get('log', 'Unknown Game Log')
 
 class WarningLog(Log):
-    __slots__ = ['trash',]
+    # has no slots, always trash.
     trash = True
     
     @classmethod
@@ -105,17 +106,19 @@ class WarningLog(Log):
         return False
     
     def __init__(self, values=None):
-        pass
+        self.trash = True
 
 ########################################################################################################
 # Individual logs.
 
 class SteamInitialization(GameLog):
+    __slots__ = GameLog.__slots__
     matcher = [
         re.compile(r"^Steam\sinitialized\sappId\s(?P<steam_app_id>\d+),\suserSteamID\s(?P<steam_id_universe>\d+)\|(?P<steam_id_type>\d+)\|(?P<steam_id_account_hex>\w+),\suserName\s'(?P<steam_username>[^']+)'"),
         ]
 
 class MasterServerSession(GameLog):
+    __slots__ = GameLog.__slots__
     matcher = [
         re.compile(r"^MasterServerSession\:\sconnect\sto\sdedicated\sserver(?:,\s|session\s(?P<session_id>\d+)|at addr (?P<addr>\d+\.\d+\.\d+\.\d+)\|(?P<port>\d+))+"),
         re.compile(r"^MasterServerSession:\sconnect\sto\sZoneInstance,\ssession\s(?P<session_id>\d+),\sat\saddr\s(?P<addr>\d+\.\d+\.\d+\.\d+)\|(?P<port>\d+),\szoneId\s(?P<zone_id>\d+)"),
@@ -129,6 +132,7 @@ class MasterServerSession(GameLog):
     
     
 class ClientInfo(GameLog):
+    __slots__ = GameLog.__slots__
     # Note: clinfo holds the subtype of this packet.
     matcher = [
         # connecting; addr, port
@@ -163,6 +167,7 @@ class ClientInfo(GameLog):
     
 
 class StartingLevel(GameLog):
+    __slots__ = GameLog.__slots__
     # level, gametype, unknown_gametype
     matcher = [
     re.compile(r"^======\sstarting\slevel\:\s'(?P<level>[^']+)'(?:\s|client|(?P<gametype>KingOfTheHill)|(?P<unknown_gametype>[^\s]+))+======"),
@@ -176,6 +181,7 @@ class StartingLevel(GameLog):
     
     
 class LevelStarted(GameLog):
+    __slots__ = GameLog.__slots__
     matcher = []
     
     @classmethod
