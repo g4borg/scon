@@ -118,7 +118,7 @@ class LogStream(object):
                     #if isinstance(self._last_object, Stacktrace) and line.startswith('\t'):
                     #    logging.debug('Workaround: %s, worked: %s' % (line, self._last_object.append(line)))
                     #    return                        
-                    if self._last_object is not None:
+                    if self._last_object is not None and isinstance(self._last_object, Log):
                         self._last_object.unpack()
                         if self._last_object.append(line):
                             return
@@ -127,6 +127,10 @@ class LogStream(object):
             elif isinstance(line, dict):
                 # Unresolved Log.
                 o = self.resolve(line)
+                # this is where the whole thing gets polluted with weird dicts.
+                # what exactly should resolve do!?
+                # by default it returns what its given, if unknown.
+                # #@TODO @XXX @CRITICAL
                 self._last_object = o
             else:
                 self._last_object = o

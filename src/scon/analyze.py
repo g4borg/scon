@@ -29,7 +29,9 @@ if __name__ == '__main__':
                         datefmt='%Y-%m-%d %H:%M:%S')
     coll = LogSessionCollector(os.path.join(os.path.expanduser('~'),
                         'Documents', 'My Games', 'sc'))
+    logging.info('Collecting Sessions...')
     coll.collect_unique()
+    logging.info('collected %s sessions.' % (len(coll.sessions)))
     #f = open('output.txt', 'w')
     rex_combat = {}
     rex_game = {}
@@ -50,6 +52,8 @@ if __name__ == '__main__':
                         if not isinstance(l, combat.UserEvent):
                             if not LOG_GOOD:
                                 print((l.values['log']))
+        else:
+            logging.debug('No combat log in %s' % logf.idstr)
         if logf.game_log:
             for l in logf.game_log.lines:
                 if isinstance(l, dict):
@@ -63,6 +67,8 @@ if __name__ == '__main__':
                         rex_game[l.__class__.__name__] = rex_game.get(l.__class__.__name__, 0) + 1
                         if not LOG_GOOD:
                             print((l.values['log']))
+        else:
+            logging.debug('No game log in %s' % logf.idstr)
         if logf.chat_log:
             for l in logf.chat_log.lines:
                 if isinstance(l, dict):
@@ -76,6 +82,8 @@ if __name__ == '__main__':
                         rex_chat[l.__class__.__name__] = rex_chat.get(l.__class__.__name__, 0) + 1
                         if not LOG_GOOD:
                             print((l.values['log']))
+        else:
+            logging.debug('No chat log in %s' % logf.idstr)
         logf.clean(True)
         # additional cleanup:
         if logf.chat_log:

@@ -1,7 +1,7 @@
 """
     Logging Session.
 """
-import zipfile, logging, os
+import zipfile, logging, os, io
 from .logfiles import CombatLogFile, GameLogFile, ChatLogFile
 
 class LogSession(object):
@@ -63,7 +63,8 @@ class LogFileSession(LogSession):
                 v = self._validate_files_exist()                
                 if v > 0:
                     self.idstr = os.path.split(self.directory)[1].lower()
-        except:
+        except Exception as e:
+            logging.error("exception in logfilesession.validate %s" % e)
             return False
         return v            
     
@@ -71,6 +72,7 @@ class LogFileSession(LogSession):
         ''' parses the logfiles '''
         # perform simple validation.
         if self._zip_source is None:
+            logging.error('_zip_source is None!')
             self.validate(False)
         if self._zip_source:
             self._unzip_logs(files)
@@ -110,22 +112,23 @@ class LogFileSession(LogSession):
                 if fn:
                     if fn == 'combat.log' and (not files or fn in files) and not 'combat.log' in self.files_parsed:
                         self.combat_log = CombatLogFile(fn)
-                        self.combat_log.set_data(z.read(filename))
+                        self.combat_log.set_data(io.TextIOWrapper(io.BytesIO(z.read(filename)), encoding='iso8859-1').read())
                         self.combat_log.parse()
                         self.files_parsed.append('combat.log')
                     elif fn == 'game.log' and (not files or fn in files) and not 'game.log' in self.files_parsed:
                         self.game_log = GameLogFile(fn)
-                        self.game_log.set_data(z.read(filename))
+                        self.game_log.set_data(io.TextIOWrapper(io.BytesIO(z.read(filename)), encoding='iso8859-1').read())
                         self.game_log.parse()
                         self.files_parsed.append('game.log')
                     elif fn == 'chat.log' and (not files or fn in files) and not 'chat.log' in self.files_parsed:
                         self.chat_log = ChatLogFile(fn)
-                        self.chat_log.set_data(z.read(filename))
+                        self.chat_log.set_data(io.TextIOWrapper(io.BytesIO(z.read(filename)), encoding='iso8859-1').read())
                         self.chat_log.parse()
                         self.files_parsed.append('chat.log')
-        except:
+        except Exception as e:
             self._error = True
-            return
+            logging.error('_unzip logs encountered error %s' % e)
+            raise
         finally:
             z.close()
     

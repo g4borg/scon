@@ -4,10 +4,10 @@
     Tool to analyze Logs in general.
 """
 import os, sys, logging
-from .logs.logfiles import LogFileResolver as LogFile
-from .logs import combat, game, chat
-from .logs.session import LogSessionCollector
-from .logs.game import ClientInfo
+from logs.logfiles import LogFileResolver as LogFile
+from logs import combat, game, chat
+from logs.session import LogSessionCollector
+from logs.game import ClientInfo
 
 # for windows its kinda this:
 settings = {'root_path': os.path.join(os.path.expanduser('~'),

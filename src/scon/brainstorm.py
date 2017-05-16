@@ -16,8 +16,8 @@
 """
 #from win32com.shell import shell, shellcon
 import os, sys, logging
-from .logs.logfiles import LogFileResolver as LogFile
-from .logs import combat
+from logs.logfiles import LogFileResolver as LogFile
+from logs import combat
 
 # for windows its kinda this:
 settings = {'root_path': os.path.join(os.path.expanduser('~'),

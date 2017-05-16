@@ -22,7 +22,7 @@ class LogFile(LogStream):
     def read(self, fname=None):
         fname = fname or self.fname
         try:
-            f = io.open(fname, 'r', )
+            f = io.open(fname, 'r', encoding="iso8859-1")
             self.set_data(f.read())
         except Exception as e:
             logging.error("Error %s reading file %s " % (e, fname, ))
