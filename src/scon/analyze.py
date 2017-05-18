@@ -4,12 +4,14 @@
     Tool to analyze Logs in general.
 """
 import os, sys, logging
-from logs.logfiles import LogFileResolver as LogFile
-from logs import combat, game, chat
-from logs.session import LogSessionCollector
-from logs.game import ClientInfo
+from scon.logs.logfiles import LogFileResolver as LogFile
+from scon.logs import combat, game, chat
+from scon.logs.session import LogSessionCollector
+from scon.logs.game import ClientInfo
 
 # for windows its kinda this:
+# note, this isnt used in this script. yeah i know right, defined up here, but not used down there.
+# it's because i want to unify this to be on one configurable place ;)
 settings = {'root_path': os.path.join(os.path.expanduser('~'),
                                      'Documents',
                                      'My Games',
@@ -24,9 +26,12 @@ settings = {'root_path': os.path.join(os.path.expanduser('~'),
 
 if __name__ == '__main__':
     import logging
-    logging.basicConfig(level=logging.DEBUG,
+    logging.basicConfig(level=logging.INFO,
                         format='%(asctime)s - %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S')
+    logfile = logging.FileHandler('scon.log.bak')
+    logfile.setLevel(logging.DEBUG)
+    logging.getLogger().addHandler(logfile)
     coll = LogSessionCollector(os.path.join(os.path.expanduser('~'),
                         'Documents', 'My Games', 'sc'))
     logging.info('Collecting Sessions...')
@@ -40,7 +45,7 @@ if __name__ == '__main__':
     for logf in coll.sessions:
         logf.parse_files(['game.log', 'combat.log', 'chat.log'])
         
-        print(("----- Log %s -----" % logf.idstr))
+        logging.info(("## Processing Log %s" % logf.idstr))
         if logf.combat_log:
             for l in logf.combat_log.lines:
                 if isinstance(l, dict):
@@ -51,9 +56,9 @@ if __name__ == '__main__':
                         rex_combat[l.__class__.__name__] = rex_combat.get(l.__class__.__name__, 0) + 1
                         if not isinstance(l, combat.UserEvent):
                             if not LOG_GOOD:
-                                print((l.values['log']))
+                                logging.debug((l.values['log']))
         else:
-            logging.debug('No combat log in %s' % logf.idstr)
+            logging.warning('No combat log in %s' % logf.idstr)
         if logf.game_log:
             for l in logf.game_log.lines:
                 if isinstance(l, dict):
@@ -66,9 +71,9 @@ if __name__ == '__main__':
                     else:
                         rex_game[l.__class__.__name__] = rex_game.get(l.__class__.__name__, 0) + 1
                         if not LOG_GOOD:
-                            print((l.values['log']))
+                            logging.debug((l.values['log']))
         else:
-            logging.debug('No game log in %s' % logf.idstr)
+            logging.warning('No game log in %s' % logf.idstr)
         if logf.chat_log:
             for l in logf.chat_log.lines:
                 if isinstance(l, dict):
@@ -81,9 +86,9 @@ if __name__ == '__main__':
                     else:
                         rex_chat[l.__class__.__name__] = rex_chat.get(l.__class__.__name__, 0) + 1
                         if not LOG_GOOD:
-                            print((l.values['log']))
+                            logging.debug((l.values['log']))
         else:
-            logging.debug('No chat log in %s' % logf.idstr)
+            logging.warning('No chat log in %s' % logf.idstr)
         logf.clean(True)
         # additional cleanup:
         if logf.chat_log:
@@ -92,10 +97,10 @@ if __name__ == '__main__':
             logf.game_log.lines = []
         if logf.combat_log:
             logf.combat_log.lines = []
-    print('Analysis complete:')
-    print(('#'*20+' RexCombat ' + '#' *20))
-    print(rex_combat)
-    print(('#'*20+' RexGame ' + '#' *20))
-    print(rex_game)
-    print(('#'*20+' RexChat ' + '#' *20))
-    print(rex_chat)
+    logging.info('Analysis complete:')
+    logging.info(('#'*20+' RexCombat ' + '#' *20))
+    logging.info(rex_combat)
+    logging.info(('#'*20+' RexGame ' + '#' *20))
+    logging.info(rex_game)
+    logging.info(('#'*20+' RexChat ' + '#' *20))
+    logging.info(rex_chat)
