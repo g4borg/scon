@@ -1,4 +1,11 @@
 """
+    Why?
+        - initial implementation only followed to read whole files, but the logparser itself would work also on streamed data.
+        - now the initial implementation builds on top of logstream, which should keep the stream functionality intact, aka allow later to parse
+          files as they get written.
+        - much of the parsing therefore may be designed to be repetible, if information is partial. Unfortunately this makes the whole process a bit mind-crunching.
+        
+        
     A LogStream is supposed to:
      - parse data feeded into it.
      - yield new objects
@@ -22,6 +29,8 @@
     combine it with the lookup for "watching files being changed", to create a program which listens to the logs live
     @see: monitor.py
     @see: watchdog https://pypi.python.org/pypi/watchdog
+    
+    
 """
 from .base import Log
 import re
@@ -61,6 +70,8 @@ class LogStream(object):
     
     def clean(self, remove_log=True):
         # cleans the logs by removing all non parsed packets.
+        # in essence, every line which is a dict, is removed. every log class is called for clean.
+        # every log that flags itself as trash, is removed.
         # remove_log: should i remove the raw log entry?
         lines = []
         for l in self.lines:
@@ -71,8 +82,7 @@ class LogStream(object):
                             l.clean()
                         lines.append(l)
                     else:
-                        print((type(l)))
-                        print(l)
+                        logging.warning('The Packet of Type %s has no trash attribute. Is it a valid Log Class? %s' % (type(l), l))
         self.lines = lines
         self._unset_data()
 
@@ -82,7 +92,11 @@ class LogStream(object):
         self._data = None
         
     def pre_parse_line(self, line):
+        # pre parse line expects a raw line from the log.
+        # it will basicly return None if that line is not important for logs.
+        # otherwise it will return a dictionary, containing logtype, hh, dd, mm, ss, ns, and log as logline.
         if not isinstance(line, str):
+            # if this has already been parsed:
             return line
         elif line.startswith('---'):
             return None
@@ -103,7 +117,7 @@ class LogStream(object):
         return None
     
     def _parse_line(self, line):
-        # add the line to my lines.
+        # add the line to the current packets lines.
         if line is not None:
             o = line
             if isinstance(line, str):
@@ -121,16 +135,18 @@ class LogStream(object):
                     if self._last_object is not None and isinstance(self._last_object, Log):
                         self._last_object.unpack()
                         if self._last_object.append(line):
+                            # last object accepted this line, return.
                             return
+                    # at this point, either the last object did not accept this string,
+                    # or last object wasnt a stacktrace.
+                    # either way, this is a weird one.
                     logging.debug('#: %s' % line)
-                    o = None
+                    o = None # will return later.
             elif isinstance(line, dict):
                 # Unresolved Log.
                 o = self.resolve(line)
-                # this is where the whole thing gets polluted with weird dicts.
-                # what exactly should resolve do!?
-                # by default it returns what its given, if unknown.
-                # #@TODO @XXX @CRITICAL
+                # after resolving the log, it hopefully is not a dict anymore.
+                # if it still is, its just the same dict.
                 self._last_object = o
             else:
                 self._last_object = o
@@ -145,4 +161,5 @@ class LogStream(object):
     def resolve(self, gd):
         # gd is a dict.
         # try to find a class that is responsible for this log.
+        # this is done in subclasses of logstream.
         return gd

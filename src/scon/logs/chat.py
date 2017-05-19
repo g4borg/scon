@@ -14,7 +14,7 @@ between 33-33-33 and FF-33 FF-33 FF-33
 """
 
 class ChatLog(Log):
-    __slots__ = Log.__slots__ + ['_match_id', 'values']
+    __slots__ = Log.__slots__
     
     @classmethod
     def is_handler(cls, log):

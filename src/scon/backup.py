@@ -1,7 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 """
-    Backup Directories, Handle Files...
+    This script backs up all recent star conflict log directories into a common repository, by zipping each directory.
+    It omits directories already backed up, and ommits files in the directories.
+    
+    Analyze.py can then scan these directories / zipfiles in development.
 """
 
 import os, logging, zipfile

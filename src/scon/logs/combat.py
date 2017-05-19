@@ -22,9 +22,10 @@
 import re
 from .base import Log, L_CMBT, Stacktrace
 import logging
+trash_log = logging.getLogger('trash_log')
 
 class CombatLog(Log):
-    __slots__ = Log.__slots__ + [ '_match_id', 'values']
+    __slots__ = Log.__slots__
     @classmethod
     def _log_handler(cls, log):
         if log.startswith(cls.__name__):
@@ -60,8 +61,7 @@ class CombatLog(Log):
                     return True
         # unknown?
         if not isinstance(self, UserEvent):
-            logging.warning('Unknown Packet for %s:\n%s' % (self.__class__.__name__, 
-                                                             self.values.get('log', '')))
+            trash_log.info('%s\t\t%s' % (self.__class__.__name__, self.values.get('log', '')))
         # trash if unknown or no matcher.
         self.trash = True
     
@@ -98,7 +98,7 @@ class Damage(CombatLog):
 
 class Spawn(CombatLog):
     __slots__ = CombatLog.__slots__
-    matcher = re.compile(r"^Spawn\sSpaceShip\sfor\splayer(?P<player>\d+)\s\((?P<name>[^,]+),\s+(?P<hash>#\w+)\)\.\s+'(?P<ship_class>\w+)'")
+    matcher = re.compile(r"^Spawn\sSpaceShip\sfor\splayer(?P<player>-*\d+)\s\((?P<name>[^,]*),\s+(?P<hash>#\w+)\)\.\s+'(?P<ship_class>\w+)'")
 
 class Spell(CombatLog):
     __slots__ = CombatLog.__slots__
@@ -115,28 +115,25 @@ class Reward(CombatLog):
 
 class Participant(CombatLog):
     __slots__ = CombatLog.__slots__
-    matcher = re.compile(r"^\s+Participant\s+(?P<source_name>[^\s]+)(?:\s+(?P<ship_class>\w+)|\s{30,})\s+(?:totalDamage\s(?P<total_damage>(?:\d+|\d+\.\d+));\s+|\s+)(?:mostDamageWith\s'(?P<module_class>[^']+)';\s*(?P<additional>.*)|<(?P<other>\w+)>)")
-
-"""
-2017-03-29 13:25:49 - Unknown Packet for Rocket:
-Rocket launch 18912, owner 'LOSNAR', def 'SpaceMissile_Barrage_T5_Mk3', target 'white213mouse' (17894)
-2017-03-29 13:25:49 - Unknown Packet for Rocket:
-Rocket detonation 18912, owner 'LOSNAR', def 'SpaceMissile_Barrage_T5_Mk3', reason 'auto_detonate', directHit 'white213mouse'
-2017-03-29 13:25:49 - Unknown Packet for Rocket:
-Rocket launch 18966, owner 'LOSNAR', def 'SpaceMissile_Barrage_T5_Mk3', target 'white213mouse' (17894)
-2017-03-29 13:25:49 - Unknown Packet for Rocket:
-Rocket detonation 18966, owner 'LOSNAR', def 'SpaceMissile_Barrage_T5_Mk3', reason 'auto_detonate', directHit 'white213mouse'
-2017-03-29 13:25:49 - Unknown Packet for Rocket:
-Rocket detonation 18892, owner 'LOSNAR', def 'SpaceMissile_Barrage_T5_Mk3', reason 'ttl'
-2017-03-29 13:25:49 - Unknown Packet for Rocket:
-Rocket detonation 18931, owner 'optimistik', def 'Weapon_Railgun_Heavy_T5_Epic', reason 'hit'
-2017-03-29 13:25:49 - Unknown Packet for Participant:
-   Participant    white213mouse     Ship_Race5_M_ATTACK_Rank15   
-"""
+    matcher = [
+        # more complex version:       
+        re.compile(r"^\s+Participant\s+(?P<source_name>[^\s]+)(?:\s+(?P<ship_class>\w+)|\s{30,})\s+(?:totalDamage\s(?P<total_damage>(?:\d+|\d+\.\d+));\s+|\s+)(?:mostDamageWith\s'(?P<module_class>[^']+)';\s*(?P<additional>.*)|<(?P<other>\w+)>)"),
+        # simple version (new):
+        re.compile(r"^\s+Participant\s+(?P<source_name>[^\s]+)\s+(?P<ship_class>\w+)"),
+        re.compile(r"^\s+Participant\s+(?P<source_name>[^\s]+)"),
+        ]
 
 class Rocket(CombatLog):
     __slots__ = CombatLog.__slots__
-    matcher = re.compile(r"^Rocket\s(?P<event>launch|detonation)\.\sowner\s'(?P<name>[^']+)'(?:,\s(?:def\s'(?P<missile_type>\w+)'|target\s'(?P<target>[^']+)'|reason\s'(?P<reason>\w+)'|directHit\s'(?P<direct_hit>[^']+)'))+")
+    # keys = [ 'event', 'name', 'def', 'target', 'reason', 'direct_hit', 'rocket_id' ]
+    # changed 'missile_type' to 'def'
+    
+    matcher = [
+        # old version: Rocket detonation. owner...
+        re.compile(r"^Rocket\s(?P<event>launch|detonation)\.\sowner\s'(?P<name>[^']+)'(?:,\s(?:def\s'(?P<def>[^']+)'|target\s'(?P<target>[^']+)'|reason\s'(?P<reason>[^']+)'|directHit\s'(?P<direct_hit>[^']+)'))+"),
+        # new version: Rocket detonation rocket ID (is that range? it can be -1), owner ...
+        re.compile(r"^Rocket\s(?P<event>launch|detonation)\s+(?P<rocket_id>-*\d+),\sowner\s'(?P<name>[^']+)'(?:,\s(?:def\s'(?P<def>[^']+)'|target\s'(?P<target>[^']+)'|reason\s'(?P<reason>[^']+)'|directHit\s'(?P<direct_hit>[^']+)'))+"),
+        ]
 
 class Heal(CombatLog):
     __slots__ = CombatLog.__slots__
@@ -144,7 +141,9 @@ class Heal(CombatLog):
         # heal by module
         re.compile(r"^Heal\s+(?P<source_name>[^\s]+)\s\->\s+(?P<target_name>[^\s]+)\s+(?P<amount>(?:\d+|\d+\.\d+))\s(?P<module_class>[^\s]+)"),
         # direct heal by source or n/a (global buff)
-        re.compile(r"^Heal\s+(?:n/a|(?P<source_name>\w+))\s+\->\s+(?P<target_name>[^\s]+)\s+(?P<amount>(?:\d+|\d+\.\d+))"),
+        re.compile(r"^Heal\s+(?:n/a|(?P<source_name>\w+))\s+\->\s+(?P<target_name>[^\s]+)\s+(?P<amount>(?:\d+\.\d+|\d+))"),
+        # new heal with microtid
+        re.compile(r"^Heal\s+(?:n/a|(?P<source_name>[^\|]+)\|(?P<source_tid>\d+))\s+\->\s+(?P<target_name>[^\|]+)\|(?P<target_tid>\d+)\s+(?P<amount>(?:\d+\.\d+|\d+))")
         ]
 
 class Killed(CombatLog):
@@ -253,11 +252,19 @@ class Set(CombatLog):
     called on setting "relationship" / OpenSpace
     Variables in values:
      - what (relationship)
+     
+    Optionals:
      - name (who do i set?)
      - value (to what value?)
+     - def: spell usually in combination with level and deftype.
     """
     __slots__ = CombatLog.__slots__
-    matcher = re.compile("^Set\s(?P<what>\w+)\s(?P<name>[^\s]+)\sto\s(?P<value>\w+)")
+    matcher = [
+        # what: usually reputation.
+        re.compile("^Set\s(?P<what>\w+)\s(?P<name>[^\s]+)\sto\s(?P<value>\w+)"),
+        # what: 'stage', +level +deftype (aura), def (aura spell name), index is weird array lookup always 0, id is the id of the aura. 
+        re.compile("^Set\s(?P<what>\w+)\s(?P<level>\d+)\s+for\s+(?P<deftype>\w+)\s+'(?P<def>[^']+)'\[(?P<index>\d+)\]\s+id\s(?P<id>-*\d+)"),
+        ]
 
 class SqIdChange(CombatLog):
     """ - number: player number

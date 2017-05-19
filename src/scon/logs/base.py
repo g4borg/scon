@@ -33,12 +33,14 @@ L_NET = 'NET' # Not supported in near future.
 L_CHAT = 'CHAT'
 
 class Log(object):
-    __slots__ = ['trash', 'reviewed']
+    __slots__ = ['trash', 'reviewed', '_match_id', 'values']
     matcher = None
     
     def __init__(self):
         self.trash = False
         self.reviewed = False
+        self.values = None
+        self._match_id = None
     
     @classmethod
     def is_handler(cls, log):
@@ -61,8 +63,11 @@ class Log(object):
         return False
 
 class Stacktrace(Log):
-    ''' Special Log to catch error reports '''
-    __slots__ = ['trash', 'reviewed', 'message']
+    ''' Special Log to catch error reports 
+        -> holds data in message not in values.
+        -> makes use of append
+    '''
+    __slots__ = ['trash', 'reviewed', 'message', '_match_id', 'values']
     
     def __init__(self, values=None):
         super(Stacktrace, self).__init__()

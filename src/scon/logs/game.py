@@ -52,7 +52,7 @@ Interesting Lines:
 """
 
 class GameLog(Log):
-    __slots__ = Log.__slots__ + [ '_match_id', 'values']
+    __slots__ = Log.__slots__
     @classmethod
     def is_handler(cls, log):
         if log.get('logtype', None) == '': # we handle only logs with empty logtype.
