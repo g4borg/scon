@@ -4,9 +4,11 @@ Library for reading SC logs
 Github Release of my logparsing attempt
 and other stuffs, from internal git.
 
-This software is in a _pre-alpha_ stage, and is considered mostly useful for _scientific_ purposes.
+This software is in a 'pre-alpha' stage, and is considered mostly useful for *scientific* purposes.
 
 *License: LGPL*
+
+Latest Commits See http://github.com/g4borg/scon/commits
 
 Current Goals
 -------------
