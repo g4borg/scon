@@ -38,7 +38,7 @@ settings = {'analyze_path': os.path.join(os.path.expanduser('~'),
 def select_parsing_sessions(alist):
     # for micro controlling, which sessions to parse.
     # default: return alist
-    return alist[-50:]
+    return alist
 
 if __name__ == '__main__':
     # set this to your liking:

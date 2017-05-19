@@ -170,7 +170,10 @@ class StartingLevel(GameLog):
     __slots__ = GameLog.__slots__
     # level, gametype, unknown_gametype
     matcher = [
-    re.compile(r"^======\sstarting\slevel\:\s'(?P<level>[^']+)'(?:\s|client|(?P<gametype>KingOfTheHill)|(?P<unknown_gametype>[^\s]+))+======"),
+    
+    re.compile(r"^======\sstarting\slevel\:\s'(?P<level>[^']+)'\s(?P<gametype>[^\s]+)\sclient\s======"),
+    re.compile(r"^======\sstarting\slevel\:\s'(?P<level>[^']+)'\s(?P<gametype>[^\s]+)\s======"),
+    re.compile(r"^======\sstarting\slevel\:\s'(?P<level>[^']+)'\s+======"),
     ]
     
     @classmethod
