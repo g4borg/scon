@@ -111,6 +111,9 @@ class LogStream(object):
                 g = m.groupdict()
                 if 'logtype' in list(g.keys()):
                     g['logtype'] = g['logtype'].strip()
+                if not g.get('log', None):
+                    # this is a no-op, a log line without information.
+                    return None
                 return g
             else:
                 return line

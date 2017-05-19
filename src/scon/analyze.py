@@ -38,26 +38,32 @@ settings = {'analyze_path': os.path.join(os.path.expanduser('~'),
 def select_parsing_sessions(alist):
     # for micro controlling, which sessions to parse.
     # default: return alist
-    return alist[-50:]
+    return alist
 
 if __name__ == '__main__':
     # set this to your liking:
     COUNT_GOOD = True # count via rex good packets aswell. useful to see total encountered packets in summary.
-    LOG_GOOD_ONLY = True # Log good packets only. if set to false, will log unknown packets to trash_log.
+    LOG_GOOD_ONLY = False # Log good packets only. if set to false, will log unknown packets to trash_log.
     LOG_BAD_CMBT = True # by default, the main logs of interest for unknown entries is combat logs. here you can finetune which logs to catch.
     LOG_BAD_CHAT = False
     LOG_BAD_GAME = False
     
     # set up our logging to do our task:
-    import logging
+    FILE_MAIN_LOG = 'scon.log.bak'
+    FILE_TRASH_LOG = 'trash.log.bak'
+    if os.path.exists(FILE_MAIN_LOG) and os.path.isfile(FILE_MAIN_LOG):
+        os.remove(FILE_MAIN_LOG)
+    if os.path.exists(FILE_TRASH_LOG) and os.path.isfile(FILE_TRASH_LOG):
+        os.remove(FILE_TRASH_LOG)
+    
     logging.basicConfig(level=logging.INFO,
                         format='%(asctime)s - %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S')
-    logfile = logging.FileHandler('scon.log.bak')
+    logfile = logging.FileHandler(FILE_MAIN_LOG)
     logfile.setLevel(logging.DEBUG)
     logging.getLogger().addHandler(logfile)
     
-    trashfile = logging.FileHandler('trash.log.bak')
+    trashfile = logging.FileHandler(FILE_TRASH_LOG)
     trashfile.setLevel(logging.INFO)
     trash_log = logging.getLogger('trash_log')
     
@@ -94,10 +100,16 @@ if __name__ == '__main__':
                 if isinstance(l, dict):
                     #print l
                     rex_combat['dict'] = rex_combat.get('dict', 0) + 1
+                    if not LOG_GOOD_ONLY and LOG_BAD_CMBT:
+                        x = l.get('log', None)
+                        if x:
+                            trash_log.info(x)
+                        else:
+                            logging.warning('Unknown dictionary: %s' % l)
                 else:
                     if not l.unpack() or COUNT_GOOD:
                         rex_combat[l.__class__.__name__] = rex_combat.get(l.__class__.__name__, 0) + 1
-                    if not isinstance(l, combat.UserEvent):
+                    if not isinstance(l, combat.CombatLog):
                         if not LOG_GOOD_ONLY and LOG_BAD_CMBT:
                             trash_log.info((l.values['log']))
         else:
@@ -105,7 +117,13 @@ if __name__ == '__main__':
         if logf.game_log:
             for l in logf.game_log.lines:
                 if isinstance(l, dict):
-                    rex_game['dict'] = rex_game.get('dict', 0) + 1 
+                    rex_game['dict'] = rex_game.get('dict', 0) + 1
+                    if not LOG_GOOD_ONLY and LOG_BAD_GAME:
+                        x = l.get('log', None)
+                        if x:
+                            trash_log.info(x)
+                        else:
+                            logging.warning('Unknown dictionary: %s' % l)
                 elif isinstance(l, str):
                     print(l)
                 else:
