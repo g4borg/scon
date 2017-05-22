@@ -10,6 +10,7 @@
 """
 from .logstream import LogStream
 import io, logging
+from scon.config.settings import settings
 
 class LogFile(LogStream):
     def __init__(self, fname=None,
@@ -22,9 +23,10 @@ class LogFile(LogStream):
     def read(self, fname=None):
         fname = fname or self.fname
         try:
-            f = io.open(fname, 'r', encoding="iso8859-1")
+            f = io.open(fname, 'r', encoding=settings.detect_encoding(fname))
             self.set_data(f.read())
         except Exception as e:
+            logging.info("settings.detect_encoding(fname): %s" % settings.detect_encoding(fname) )
             logging.error("Error %s reading file %s " % (e, fname, ))
         finally:
             f.close()

@@ -1,0 +1,4 @@
+# Requirements for the full functionality. Note, core library is aimed to work without dependency.
+chardet
+pyqt5
+watchdog

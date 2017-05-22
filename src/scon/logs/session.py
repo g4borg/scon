@@ -3,6 +3,7 @@
 """
 import zipfile, logging, os, io
 from .logfiles import CombatLogFile, GameLogFile, ChatLogFile
+from scon.config.settings import settings
 
 class LogSession(object):
     """
@@ -112,17 +113,17 @@ class LogFileSession(LogSession):
                 if fn:
                     if fn == 'combat.log' and (not files or fn in files) and not 'combat.log' in self.files_parsed:
                         self.combat_log = CombatLogFile(fn)
-                        self.combat_log.set_data(io.TextIOWrapper(io.BytesIO(z.read(filename)), encoding='iso8859-1').read())
+                        self.combat_log.set_data(io.TextIOWrapper(io.BytesIO(z.read(filename)), encoding=settings.detect_encoding()).read())
                         self.combat_log.parse()
                         self.files_parsed.append('combat.log')
                     elif fn == 'game.log' and (not files or fn in files) and not 'game.log' in self.files_parsed:
                         self.game_log = GameLogFile(fn)
-                        self.game_log.set_data(io.TextIOWrapper(io.BytesIO(z.read(filename)), encoding='iso8859-1').read())
+                        self.game_log.set_data(io.TextIOWrapper(io.BytesIO(z.read(filename)), encoding=settings.detect_encoding()).read())
                         self.game_log.parse()
                         self.files_parsed.append('game.log')
                     elif fn == 'chat.log' and (not files or fn in files) and not 'chat.log' in self.files_parsed:
                         self.chat_log = ChatLogFile(fn)
-                        self.chat_log.set_data(io.TextIOWrapper(io.BytesIO(z.read(filename)), encoding='iso8859-1').read())
+                        self.chat_log.set_data(io.TextIOWrapper(io.BytesIO(z.read(filename)), encoding=settings.detect_encoding()).read())
                         self.chat_log.parse()
                         self.files_parsed.append('chat.log')
         except Exception as e:

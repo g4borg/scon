@@ -19,21 +19,14 @@ from scon.logs.logfiles import LogFileResolver as LogFile
 from scon.logs import combat, game, chat
 from scon.logs.session import LogSessionCollector
 from scon.logs.game import ClientInfo
+from scon.config.settings import settings
 
-# only analyze_path is used in this script. the others are for example.
-settings = {'analyze_path': os.path.join(os.path.expanduser('~'),
-                        'Documents', 'My Games', 'sc'),
-            
-            'root_path': os.path.join(os.path.expanduser('~'),
-                                     'Documents',
-                                     'My Games',
-                                     'StarConflict',),            
-            'logfiles': os.path.join(os.path.expanduser('~'),
-                                     'Documents',
-                                     'My Games',
-                                     'StarConflict',
-                                     'logs'
-                                     ),}
+
+
+settings.autodetect()
+# only analyze_path is used in this script. set it to settings.get_log_path() if you want to scan only your recent log directories.
+settings['analyze_path'] = os.path.join(os.path.expanduser('~'),
+                        'Documents', 'My Games', 'sc')
 
 def select_parsing_sessions(alist):
     # for micro controlling, which sessions to parse.
