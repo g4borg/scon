@@ -2,6 +2,8 @@ import os, io, sys, logging, time
 from PyQt5 import QtGui, QtCore, Qt
 from scon.logs.session import LogSessionCollector
 from scon.logs import game, combat, chat
+from scon.game.battle import battle_factory
+from scon.config.settings import settings
 
 class SessionTreeView(Qt.QTreeView):
     def __init__(self, parent):
@@ -44,33 +46,22 @@ class SessionTreeView(Qt.QTreeView):
                     return
                 session = self.sessions[signal.data()]
                 session.parse_files(['game.log'])
-                info_object = Qt.QStandardItem('game.log - %s' % len(session.game_log.lines))
+                info_object = Qt.QStandardItem('no games. (game.log has %s lines)' % len(session.game_log.lines))
                 info_object.setEditable(False)
-                game_sessions = 0
                 item.appendRow(info_object)
+                
+                battles = battle_factory(session)                
                 #
                 # add all starting events
-                for line in session.game_log.lines:
-                    if isinstance(line, game.StartingLevel):
-                        line.unpack()
-                        v = line.values
-                        level = v.get('level')
-                        o = Qt.QStandardItem("Level '%s' gametype '%s'" %( level, v.get('gametype', '') ))
-                        if 'mainmenu' not in level:
-                            game_sessions += 1
-                        o.setEditable(False)
-                        info_object.appendRow(o)
-                info_object.setText('game.log - %s games' % (game_sessions,))
+                for battle in battles:
+                    o = Qt.QStandardItem("%s (Level '%s', Gametype '%s')" %( battle.__class__.__name__, battle.level, battle.gametype ) )
+                    o.setEditable(False)
+                    info_object.appendRow(o)
+                if len(battles) > 0:
+                    #session.parse_files(['combat.log', 'chat.log'])
+                    info_object.setText('%s games' % (len(battles),))
                 return
-                session.parse_files(['combat.log'])
-                info_object = Qt.QStandardItem('combat.log - %s' % len(session.combat_log.lines))
-                info_object.setEditable(False)
-                item.appendRow(info_object)
-                #
-                session.parse_files(['chat.log'])
-                info_object = Qt.QStandardItem('chat.log - %s' % len(session.chat_log.lines))
-                info_object.setEditable(False)
-                item.appendRow(info_object)
+                
         except:
             import traceback
             traceback.print_exc()
@@ -91,7 +82,10 @@ class MainWindow(Qt.QWidget):
         layout.addWidget(self.tree)
         
         #self.tree.itemClicked.connect(self.onClickItem)
-        self.tree.load_from_directory(os.path.join(os.path.expanduser('~'), 'Documents', 'My Games', 'sc'))
+        if os.path.exists(os.path.join(os.path.expanduser('~'), 'Documents', 'My Games', 'sc')):
+            self.tree.load_from_directory(os.path.join(os.path.expanduser('~'), 'Documents', 'My Games', 'sc'))
+        else:
+            self.tree.load_from_directory(settings.get_logs_path())
         
         # or delayed (not good for debug):
         
@@ -133,4 +127,5 @@ def main():
 if __name__ == "__main__":
     import logging
     logging.basicConfig(level=logging.DEBUG)
+    settings.autodetect()
     main()

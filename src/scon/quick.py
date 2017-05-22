@@ -9,6 +9,7 @@ from scon.logs.logfiles import LogFileResolver as LogFile
 from scon.logs import combat, game, chat
 from scon.logs.session import LogSessionCollector
 from scon.logs.game import ClientInfo
+from scon.game.battle import battle_factory
 from scon.config.settings import settings
 
 settings.autodetect()
@@ -24,6 +25,8 @@ if __name__ == '__main__':
             print(('length combat log ', len(logf.combat_log.lines)))
         if logf.game_log:
             print(('length game log ', len(logf.game_log.lines)))
+        print(battle_factory(logf))
+        
         print ("Cleaning.")
         logf.clean()
         if logf.combat_log:

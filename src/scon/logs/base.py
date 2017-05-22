@@ -26,6 +26,7 @@ import logging
         This is the reason, the base layout of the log object is explained here.
 """
 
+import datetime
 
 L_CMBT = 'CMBT'
 L_WARNING = 'WARNING'
@@ -33,7 +34,7 @@ L_NET = 'NET' # Not supported in near future.
 L_CHAT = 'CHAT'
 
 class Log(object):
-    __slots__ = ['trash', 'reviewed', '_match_id', 'values']
+    __slots__ = ['trash', 'reviewed', '_match_id', 'values', '_timestamp']
     matcher = None
     
     def __init__(self):
@@ -41,10 +42,22 @@ class Log(object):
         self.reviewed = False
         self.values = None
         self._match_id = None
+        self._timestamp = None
     
     @classmethod
     def is_handler(cls, log):
         return False
+    
+    @property
+    def timestamp(self):
+        if self._timestamp:
+            return self._timestamp
+        # build timestamp:
+        # datetime.time(hour[, minute[, second[, microsecond[, tzinfo]]]])
+        _time = datetime.time( int(self.values.get('hh')),
+                               int(self.values.get('mm')),
+                               int(self.values.get('ss'), 0),
+                               int(self.values.get('ns', 0)) )
     
     def unpack(self, force=False):
         ''' unpacks this log from its data and saves values '''

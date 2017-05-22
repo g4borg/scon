@@ -38,8 +38,8 @@ if __name__ == '__main__':
     COUNT_GOOD = True # count via rex good packets aswell. useful to see total encountered packets in summary.
     LOG_GOOD_ONLY = False # Log good packets only. if set to false, will log unknown packets to trash_log.
     LOG_BAD_CMBT = True # by default, the main logs of interest for unknown entries is combat logs. here you can finetune which logs to catch.
-    LOG_BAD_CHAT = False
-    LOG_BAD_GAME = False
+    LOG_BAD_CHAT = True
+    LOG_BAD_GAME = True
     
     # set up our logging to do our task:
     FILE_MAIN_LOG = 'scon.log.bak'
@@ -123,7 +123,10 @@ if __name__ == '__main__':
                     if not l.unpack() or COUNT_GOOD:
                         rex_game[l.__class__.__name__] = rex_game.get(l.__class__.__name__, 0) + 1
                     if not LOG_GOOD_ONLY and LOG_BAD_GAME and not isinstance(l, game.GameLog):
-                        trash_log.info((l.values['log']))
+                        if l and l.values:
+                            trash_log.info((l.values['log']))
+                        else:
+                            print(l)
         else:
             logging.warning('No game log in %s' % logf.idstr)
         if logf.chat_log:
@@ -136,7 +139,10 @@ if __name__ == '__main__':
                     if not l.unpack() or COUNT_GOOD:
                         rex_chat[l.__class__.__name__] = rex_chat.get(l.__class__.__name__, 0) + 1
                     if not LOG_GOOD_ONLY and LOG_BAD_CHAT and not isinstance(l, chat.ChatLog):
-                        trash_log.info((l.values['log']))
+                        if l and l.values:
+                            trash_log.info((l.values['log']))
+                        else:
+                            print(l)
         else:
             logging.warning('No chat log in %s' % logf.idstr)
         

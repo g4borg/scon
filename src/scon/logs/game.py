@@ -87,6 +87,7 @@ class GameLog(Log):
                     self.values.update(m.groupdict())
                     self._match_id = i
                     self.reviewed = True
+                    self.trash = False
                     return True
         # unknown?
         self.trash = True
@@ -176,6 +177,12 @@ class StartingLevel(GameLog):
     re.compile(r"^======\sstarting\slevel\:\s'(?P<level>[^']+)'\s+======"),
     ]
     
+    def is_mainmenu(self):
+        if self.reviewed and self.values:
+            if 'mainmenu' in self.values.get('level', ''):
+                return True
+            return False
+    
     @classmethod
     def _is_handler(cls, log):
         if log.get('log', '').startswith('====== starting'):
@@ -192,6 +199,7 @@ class LevelStarted(GameLog):
         if log.get('log', '').startswith('====== level'):
             return True
         return False
+    
 
 
 
