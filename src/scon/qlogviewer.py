@@ -19,7 +19,6 @@ class SessionTreeView(Qt.QTreeView):
             #child_item.clicked.connect(self.onClickItem)
             parent.appendRow(child_item)
             if isinstance(children, dict):
-                
                 if isinstance(children[child], dict):
                     self._populateTree(children[child], child_item)
                 
@@ -47,6 +46,7 @@ class SessionTreeView(Qt.QTreeView):
                 session.parse_files(['game.log'])
                 info_object = Qt.QStandardItem('game.log - %s' % len(session.game_log.lines))
                 info_object.setEditable(False)
+                game_sessions = 0
                 item.appendRow(info_object)
                 #
                 # add all starting events
@@ -54,11 +54,13 @@ class SessionTreeView(Qt.QTreeView):
                     if isinstance(line, game.StartingLevel):
                         line.unpack()
                         v = line.values
-                        o = Qt.QStandardItem("Level '%s' gametype '%s'" %( v.get('level'),
-                                                                       v.get('gametype', '') ))
+                        level = v.get('level')
+                        o = Qt.QStandardItem("Level '%s' gametype '%s'" %( level, v.get('gametype', '') ))
+                        if 'mainmenu' not in level:
+                            game_sessions += 1
                         o.setEditable(False)
                         info_object.appendRow(o)
-                
+                info_object.setText('game.log - %s games' % (game_sessions,))
                 return
                 session.parse_files(['combat.log'])
                 info_object = Qt.QStandardItem('combat.log - %s' % len(session.combat_log.lines))
