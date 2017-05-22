@@ -56,7 +56,7 @@ class SessionTreeView(Qt.QTreeView):
                 for battle in battles:
                     o = Qt.QStandardItem("%s (Level '%s', Gametype '%s')" %( battle.__class__.__name__, battle.level, battle.gametype ) )
                     o.setEditable(False)
-                    info_object.appendRow(o)
+                    item.appendRow(o)
                 if len(battles) > 0:
                     #session.parse_files(['combat.log', 'chat.log'])
                     info_object.setText('%s games' % (len(battles),))

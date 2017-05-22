@@ -34,7 +34,7 @@
 """
 from .base import Log
 import re
-from logs.base import Stacktrace
+from scon.logs.base import Stacktrace
 import logging
 RE_SCLOG = r'^(?P<hh>\d{2,2})\:(?P<mm>\d{2,2})\:(?P<ss>\d{2,2})\.(?P<ns>\d{3,3})\s(?P<logtype>\s*[^\|\s]+\s*|\s+)\|\s(?P<log>.*)'
 R_SCLOG = re.compile(RE_SCLOG) 

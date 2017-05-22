@@ -58,7 +58,7 @@ class PvPBeaconHunt(PvPBattle):
 
 # Dreads
 class DreadnoughtBattle(Battle):
-    pass
+    _game_type_strings = ['ClanShip']
 
 ### PvE Stuff: low prio.
 class PvEBattle(Battle):
@@ -103,7 +103,7 @@ def battle_factory(logs):
         for line in logs.game_log.lines:
             if isinstance(line, game.StartingLevel):
                 if not line.unpack():
-                    print('Encountered broken packet.')
+                    print('Encountered broken packet: ', line.values)
                     continue
                 if not line.is_mainmenu():
                     # this is the beginning of a new battle.
