@@ -9,13 +9,13 @@ The Parsing Mechanism
 In this example, parsing complete files:
 
 	* Sessions represent a container which hold logfiles from the same directory.
-		-> it has a parse_files method which initiates first pass parsing for the given filenames in the package.
-		-> only 'game.log', 'combat.log' and 'chat.log' are supported for now as session.game_log, session.combat_log and session.chat_log.
-		-> you can only parse one of those files, e.g. first only game log, later combat or chat.
+		- it has a parse_files method which initiates first pass parsing for the given filenames in the package.
+		- only 'game.log', 'combat.log' and 'chat.log' are supported for now as session.game_log, session.combat_log and session.chat_log.
+		- you can only parse one of those files, e.g. first only game log, later combat or chat.
 	* Logfile class directly has 'lines' property holding all the 'lines from the log'. Each kind of logfile has its own subclass in logfiles.
 	* this lines list is converted from a string list to dictionaries, containing log, logtype, and timestamp data in the first parsing.
 	* these dicts are scanned by the class factories and replaced with class based representations of the log packet, coming from their submodule.
-		-> the dict is moved into the dict .values of the created class.
+		- the dict is moved into the dict .values of the created class.
 	* usually at this point, one would discard all dicts, as they represent unknown or unimportant data, what you have left is a list of classes.
 	
 	from here, all lines contain some instance of a class, already telling us, which kind of log this is
@@ -29,7 +29,7 @@ In this example, parsing complete files:
 			if line.unpack():
 				print(line.values.keys())
 	
-	-> unpack can be called several times, as it only unpacks once.
+	* unpack can be called several times, as it only unpacks once.
 	
 	
 	
