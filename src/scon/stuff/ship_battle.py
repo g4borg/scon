@@ -72,6 +72,28 @@ class Shields(DefensiveLayer):
                 self.current += self.recharge
                 self.current = min(self.current, self.maximal)
 
+class Evasion(DefensiveLayer):
+    """ Evasion is a special module, which has a chance to evade damage alltogether """
+    default_cooldown = 32 * 60
+    def __init__(self, evasion=None, default_cooldown=None):
+        super(Evasion, self).__init__(1, {}, 1)
+        self.evasion = evasion or 0.1
+        self.cooldown = 0
+        if default_cooldown:
+            # if default cooldown is given, override class variable with instance variable:
+            self.default_cooldown = default_cooldown
+        
+    def get_damage(self, damage):
+        if self.cooldown == 0 and random.random()<self.evasion:
+            self.cooldown = self.default_cooldown
+            return 0
+        else: return damage
+    
+    def update(self):
+        if self.cooldown > 0:
+            self.cooldown -= 1
+        
+
 class Weapon(ShipModule):
     """ Weapons can fire 
         On this class we save some class variables, which act as default values.
@@ -98,6 +120,15 @@ class Weapon(ShipModule):
     def fire(self, other_ship, me=None):
         if not other_ship:
             return
+        if self.ammo == 0:
+            # no ammo
+            return
+        elif self.ammo < 0:
+            # infinite ammo
+            pass
+        else:
+            # reduce ammo
+            self.ammo -= 1
         if self._heat == 0:
             other_ship.on_hit(self.damage, self.damage_type, me or self.ship)
             self._heat = self.cooldown
@@ -194,12 +225,30 @@ class FreeForAll(object):
 
 def main():
     game = FreeForAll()
-    game.add_ship(Spaceship('Rocinante', modules=[DefensiveLayer(350), Weapon(100), Weapon(100)]))
-    game.add_ship(Spaceship('Protoss Carrier', modules=[Shields(1000), DefensiveLayer(100), Weapon(15, 2), Weapon(15, 2)]))
+    
+    
+    game.add_ship(Spaceship('Rocinante', modules=[  Evasion(0.2, default_cooldown=100), 
+                                                    DefensiveLayer(450, resistances={'kinetic': 0.01, 'phase': 0.4, None: 0.1}), 
+                                                    Weapon(ammo=1200, damage=12, cooldown=2, damage_type='kinetic'), 
+                                                    Weapon(ammo=1200, damage=12, cooldown=2, damage_type='kinetic'),
+                                                    Weapon(ammo=1200, damage=12, cooldown=2, damage_type='kinetic'),
+                                                    Weapon(ammo=1200, damage=12, cooldown=2, damage_type='kinetic'),
+                                                    ]
+                            ))
+    
+    game.add_ship(Spaceship('Protoss Carrier', modules=[Shields(1000, resistances={None: 0.2, 'kinetic': 0.5, 'phase': 0.0}, recharge=4), 
+                                                        DefensiveLayer(100, resistances={None: -0.1, 'kinetic': 0.0, 'phase': 0.2}), 
+                                                        Weapon(-1, damage=15, cooldown=5, damage_type='phase'), 
+                                                        Weapon(-1, damage=15, cooldown=5, damage_type='phase')
+                                                        ]))
     
     # and add 100 raptors.
     for x in range(1, 100):
-        game.add_ship(Spaceship(f'Raptor {x}', modules=[Shields(100), DefensiveLayer(50), Weapon(10,5), Weapon(10,5)]))
+        game.add_ship(Spaceship(f'Raptor {x}', modules=[Evasion(0.05), Shields(100, recharge=0.2, resistances={'kinetic': 0.2}), 
+                                                        DefensiveLayer(50, resistances={'phase': 0.25}), 
+                                                        Weapon(ammo=120,damage=10, cooldown=5, damage_type='kinetic'), 
+                                                        Weapon(ammo=120,damage=10, cooldown=5, damage_type='kinetic'),
+                                                        Weapon(ammo=12, damage=40, cooldown=100, damage_type='phase')]))
     
     game.run()
 
