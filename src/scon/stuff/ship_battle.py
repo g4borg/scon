@@ -84,8 +84,12 @@ class Evasion(DefensiveLayer):
             self.default_cooldown = default_cooldown
         
     def get_damage(self, damage):
+        if damage == 0:
+            # dont try to evade no damage.
+            return 0
         if self.cooldown == 0 and random.random()<self.evasion:
             self.cooldown = self.default_cooldown
+            print(f'{self.ship.name} superbly evades!')
             return 0
         else: return damage
     
@@ -154,6 +158,9 @@ class Spaceship(object):
     # we define some methods, that get called by the game itself:
     def on_spawn(self):
         print(f"{self.name} appears in space.")
+        # bind my modules.
+        for mod in self.modules:
+            mod.ship = self
     
     def on_hit(self, damage, damage_type, source):
         for mod in self.modules:
@@ -201,15 +208,18 @@ class FreeForAll(object):
                 targets = list(set(self.ships))
                 targets.remove(ship)
                 if len(targets) > 0:
-                    ship.fire(random.choice(targets))
+                    target = random.choice(targets)
+                    print(f'{ship.name} fires at {target.name}!')
+                    ship.fire(target)
+                    
                 else:
                     print (f'{ship.name} has won!')
                     return
                 if ship.alive:
                     ship.update()
-            self.describe()
+            self.check()
     
-    def describe(self):
+    def check(self):
         if len(self.ships) == 0:
             print("There are no ships left.")
             self.running = False
@@ -219,32 +229,31 @@ class FreeForAll(object):
                 print(f'The ship {ship.name} is destroyed.')
                 self.ships.remove(ship)
                 continue
-            print(f'Current ship {ship.name} status report:')
-            ship.health_status()
 
 
 def main():
     game = FreeForAll()
     
     
-    game.add_ship(Spaceship('Rocinante', modules=[  Evasion(0.2, default_cooldown=100), 
-                                                    DefensiveLayer(450, resistances={'kinetic': 0.01, 'phase': 0.4, None: 0.1}), 
-                                                    Weapon(ammo=1200, damage=12, cooldown=2, damage_type='kinetic'), 
-                                                    Weapon(ammo=1200, damage=12, cooldown=2, damage_type='kinetic'),
-                                                    Weapon(ammo=1200, damage=12, cooldown=2, damage_type='kinetic'),
-                                                    Weapon(ammo=1200, damage=12, cooldown=2, damage_type='kinetic'),
-                                                    ]
-                            ))
+    #game.add_ship(Spaceship('Rocinante', modules=[  Evasion(0.2, default_cooldown=100), 
+    #                                                DefensiveLayer(450, resistances={'kinetic': 0.01, 'phase': 0.4, None: 0.1}), 
+    #                                                Weapon(ammo=1200, damage=12, cooldown=2, damage_type='kinetic'), 
+    #                                                Weapon(ammo=1200, damage=12, cooldown=2, damage_type='kinetic'),
+    #                                                Weapon(ammo=1200, damage=12, cooldown=2, damage_type='kinetic'),
+    #                                                Weapon(ammo=1200, damage=12, cooldown=2, damage_type='kinetic'),
+    #                                                ]
+    #                        ))
     
-    game.add_ship(Spaceship('Protoss Carrier', modules=[Shields(1000, resistances={None: 0.2, 'kinetic': 0.4, 'phase': 0.01}, recharge=1), 
-                                                        DefensiveLayer(100, resistances={None: -0.1, 'kinetic': 0.0, 'phase': 0.2}), 
-                                                        Weapon(-1, damage=15, cooldown=5, damage_type='phase'), 
-                                                        Weapon(-1, damage=15, cooldown=5, damage_type='phase')
-                                                        ]))
+    #game.add_ship(Spaceship('Protoss Carrier', modules=[Shields(1000, resistances={None: 0.2, 'kinetic': 0.4, 'phase': 0.01}, recharge=1), 
+    #                                                    DefensiveLayer(100, resistances={None: -0.1, 'kinetic': 0.0, 'phase': 0.2}), 
+    #                                                    Weapon(-1, damage=15, cooldown=5, damage_type='phase'), 
+    #                                                    Weapon(-1, damage=15, cooldown=5, damage_type='phase')
+    #                                                    ]))
     
     # and add 100 raptors.
     for x in range(1, 100):
-        game.add_ship(Spaceship(f'Raptor {x}', modules=[Evasion(0.05), Shields(100, recharge=0.2, resistances={'kinetic': 0.2}), 
+        game.add_ship(Spaceship(f'Raptor {x}', modules=[Shields(100, recharge=0.2, resistances={'kinetic': 0.2}),
+                                                        Evasion(0.05), # evade once shields are down! 
                                                         DefensiveLayer(50, resistances={'phase': 0.25}), 
                                                         Weapon(ammo=120,damage=10, cooldown=5, damage_type='kinetic'), 
                                                         Weapon(ammo=120,damage=10, cooldown=5, damage_type='kinetic'),
