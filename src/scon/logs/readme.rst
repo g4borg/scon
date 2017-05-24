@@ -68,3 +68,4 @@ Together with a watchdog monitor this would allow for things like chat translati
 Most of the finished parser however works on file based sessions, aka already finished logs, for post analysis methods,
 and for now this is also the higher priority for the API.
 This is the cause for the underlying parsing steps to be a bit more complicated than described above.
+
