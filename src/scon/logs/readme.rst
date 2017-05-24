@@ -23,13 +23,13 @@ however to update the rest of the log information, one has to at least call "unp
 having this finetuned in multiple steps however allows us to gain speed by ignoring unwanted information (as combat logs e.g. tend to be large)
 all other functionality is planend to be in the high level api .game
 	
-e.g.:
-```
-for line in game_log.lines:
-	if isinstance(line, Log):
-		if line.unpack():
-			print(line.values.keys())
-```
+e.g.::
+
+	for line in game_log.lines:
+		if isinstance(line, Log):
+			if line.unpack():
+				print(line.values.keys())
+
 	
 | unpack can be called several times, as it only unpacks once.
 
