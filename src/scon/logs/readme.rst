@@ -25,7 +25,7 @@ In this example, parsing complete files:
 from here, all lines contain some instance of a class, already telling us, which kind of log this is, by its class itself,
 however to update the rest of the log information, one has to at least call "unpack" once on the instance.
 having this finetuned in multiple steps however allows us to gain speed by ignoring unwanted information (as combat logs e.g. tend to be large)
-all other functionality is planend to be in the high level api .game
+all other functionality is planned to be in the high level api .game
 	
 e.g.::
 
@@ -60,3 +60,11 @@ Session
 
 This is the module holding the session collector, trying to make it easy to access your logs and parse them.
 
+Logstream
+---------
+
+This is still a bit work in progress, but logstream is the new base class, which is inherited by logfile, and should later allow the parser to be fed with streaming data, aka parse on the fly.
+Together with a watchdog monitor this would allow for things like chat translations.
+Most of the finished parser however works on file based sessions, aka already finished logs, for post analysis methods,
+and for now this is also the higher priority for the API.
+This is the cause for the underlying parsing steps to be a bit more complicated than described above.
