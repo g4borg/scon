@@ -38,15 +38,8 @@ if __name__ == '__main__':
         if logf.game_log:
             game_log_lines = len(logf.game_log.lines)
         
-        preserved = 0
-        for line in logf.game_log.lines:
-            if isinstance(line, dict):
-                continue
-            if not line.trash:
-                preserved += 1
-        print("Actually %s lines should be preserved in game.log on clean..." % preserved)     
-        
         logf.clean()
+        
         if logf.combat_log:
             print('combat.log: %s lines were eliminated during cleaning (%s -> %s)' % ( combat_log_lines - len(logf.combat_log.lines),
                           combat_log_lines,
