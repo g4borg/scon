@@ -1,55 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
-from logs.base import Log, L_WARNING, Stacktrace
-import re
 """
     This deals with the Game.Log file
     This file records lots of junk, but is needed to establish actions taken  between combat sessions,
     or retrieve more detailed information about running instances.
     It is also the typical place for a Stacktrace to happen.
-
-
---------------------------------------
-Interesting Lines:
-
-23:16:27.427        | Steam initialized appId 212070, userSteamID 1|1|4c5a01, userName 'G4bOrg'
-23:16:36.214        | ====== starting level: 'levels/mainmenu/mainmenu'  ======
-23:16:38.822        | ====== level started:  'levels/mainmenu/mainmenu' success ======
-23:16:44.251        | ====== starting level: 'levels\mainmenu\mm_empire'  ======
-23:16:46.464        | ====== level started:  'levels\mainmenu\mm_empire' success ======
-
---- Date: 2014-07-18 (Fri Jul 2014) Mitteleuropäische Sommerzeit UTC+01:00
-
-23:55:55.517        | MasterServerSession: connect to dedicated server, session 6777304, at addr 159.253.138.162|35005
-23:55:55.543        | client: start connecting to 159.253.138.162|35005...
-23:55:55.683        | client: connected to 159.253.138.162|35005, setting up session...
-23:55:55.886        | client: ADD_PLAYER 0 (OregyenDuero [OWL], 00039C86) status 6 team 1 group 1178422
-23:55:55.886        | client: ADD_PLAYER 1 (R0gue, 0012768A) status 6 team 2 group 1178451
-23:55:55.886        | client: ADD_PLAYER 2 (g4borg [OWL], 0003A848) status 1 team 1 group 1178422
-23:55:55.886        | client: ADD_PLAYER 3 (WladTepes, 001210D8) status 6 team 1
-23:55:55.886        | client: ADD_PLAYER 4 (oberus [], 000FE9B2) status 6 team 2
-23:55:55.886        | client: ADD_PLAYER 5 (TheGuns58, 00121C58) status 6 team 1
-23:55:55.886        | client: ADD_PLAYER 6 (Belleraphon, 0004C744) status 2 team 2
-23:55:55.886        | client: ADD_PLAYER 7 (TopoL, 00007E1F) status 6 team 1
-23:55:55.886        | client: ADD_PLAYER 8 (unicoimbraPT, 000C4FAC) status 6 team 2
-23:55:55.886        | client: ADD_PLAYER 9 (AeroBobik [], 00082047) status 6 team 1
-23:55:55.886        | client: ADD_PLAYER 10 (Samson4321 [], 000B93AF) status 6 team 2
-23:55:55.886        | client: ADD_PLAYER 11 (nol [], 00069165) status 6 team 1
-23:55:55.886        | client: ADD_PLAYER 12 (Pudwoppa, 000334A4) status 2 team 2
-23:55:55.886        | client: ADD_PLAYER 13 (IgorMad [], 000D2AF3) status 6 team 1
-23:55:55.886        | client: ADD_PLAYER 14 (YokaI, 000F1CC9) status 6 team 2
-23:55:55.886        | client: ADD_PLAYER 15 (MrAnyKey [], 0012246C) status 6 team 2 group 1178451
-23:55:55.886        | client: ADD_PLAYER 30 ((bot)David, 00000000) status 4 team 1
-23:55:55.886        | client: ADD_PLAYER 31 ((bot)George, 00000000) status 4 team 2
-23:55:55.886        | client: server assigned id 2
-23:55:55.886        | client: got level load message 's1340_thar_aliendebris13'
-23:55:55.889        | reset d3d device
-23:55:56.487        | ReplayManager: stopping activity due to map change
-23:55:56.576        | ====== starting level: 'levels\area2\s1340_thar_aliendebris13' KingOfTheHill client ======
-
-
 """
+
+from .base import Log, L_WARNING, Stacktrace
+import re
+import logging
+trash_log = logging.getLogger('trash_log')
+
 
 class GameLog(Log):
     __slots__ = Log.__slots__
@@ -90,16 +52,14 @@ class GameLog(Log):
                     self.trash = False
                     return True
         # unknown?
+        trash_log.info('%s\t\t%s' % (self.__class__.__name__, self.values.get('log', '')))
         self.trash = True
     
     def explain(self):
         ''' returns a String readable by humans explaining this Log '''
         return self.values.get('log', 'Unknown Game Log')
 
-class WarningLog(Log):
-    # has no slots, always trash.
-    trash = True
-    
+class WarningLog(Log):   
     @classmethod
     def is_handler(cls, log):
         if log.get('logtype', None) == L_WARNING:
@@ -107,6 +67,7 @@ class WarningLog(Log):
         return False
     
     def __init__(self, values=None):
+        super(WarningLog, self).__init__()
         self.trash = True
 
 ########################################################################################################
@@ -203,10 +164,53 @@ class LevelStarted(GameLog):
 
 
 
-GAME_LOGS = [#SteamInitialization,
+GAME_LOGS = [SteamInitialization,
              MasterServerSession,
              ClientInfo,
              StartingLevel,
-             #LevelStarted,
+             LevelStarted,
              Stacktrace,
              ]
+
+"""
+    
+
+--------------------------------------
+Interesting Lines:
+
+23:16:27.427        | Steam initialized appId 212070, userSteamID 1|1|4c5a01, userName 'G4bOrg'
+23:16:36.214        | ====== starting level: 'levels/mainmenu/mainmenu'  ======
+23:16:38.822        | ====== level started:  'levels/mainmenu/mainmenu' success ======
+23:16:44.251        | ====== starting level: 'levels\mainmenu\mm_empire'  ======
+23:16:46.464        | ====== level started:  'levels\mainmenu\mm_empire' success ======
+
+--- Date: 2014-07-18 (Fri Jul 2014) Mitteleuropäische Sommerzeit UTC+01:00
+
+23:55:55.517        | MasterServerSession: connect to dedicated server, session 6777304, at addr 159.253.138.162|35005
+23:55:55.543        | client: start connecting to 159.253.138.162|35005...
+23:55:55.683        | client: connected to 159.253.138.162|35005, setting up session...
+23:55:55.886        | client: ADD_PLAYER 0 (OregyenDuero [OWL], 00039C86) status 6 team 1 group 1178422
+23:55:55.886        | client: ADD_PLAYER 1 (R0gue, 0012768A) status 6 team 2 group 1178451
+23:55:55.886        | client: ADD_PLAYER 2 (g4borg [OWL], 0003A848) status 1 team 1 group 1178422
+23:55:55.886        | client: ADD_PLAYER 3 (WladTepes, 001210D8) status 6 team 1
+23:55:55.886        | client: ADD_PLAYER 4 (oberus [], 000FE9B2) status 6 team 2
+23:55:55.886        | client: ADD_PLAYER 5 (TheGuns58, 00121C58) status 6 team 1
+23:55:55.886        | client: ADD_PLAYER 6 (Belleraphon, 0004C744) status 2 team 2
+23:55:55.886        | client: ADD_PLAYER 7 (TopoL, 00007E1F) status 6 team 1
+23:55:55.886        | client: ADD_PLAYER 8 (unicoimbraPT, 000C4FAC) status 6 team 2
+23:55:55.886        | client: ADD_PLAYER 9 (AeroBobik [], 00082047) status 6 team 1
+23:55:55.886        | client: ADD_PLAYER 10 (Samson4321 [], 000B93AF) status 6 team 2
+23:55:55.886        | client: ADD_PLAYER 11 (nol [], 00069165) status 6 team 1
+23:55:55.886        | client: ADD_PLAYER 12 (Pudwoppa, 000334A4) status 2 team 2
+23:55:55.886        | client: ADD_PLAYER 13 (IgorMad [], 000D2AF3) status 6 team 1
+23:55:55.886        | client: ADD_PLAYER 14 (YokaI, 000F1CC9) status 6 team 2
+23:55:55.886        | client: ADD_PLAYER 15 (MrAnyKey [], 0012246C) status 6 team 2 group 1178451
+23:55:55.886        | client: ADD_PLAYER 30 ((bot)David, 00000000) status 4 team 1
+23:55:55.886        | client: ADD_PLAYER 31 ((bot)George, 00000000) status 4 team 2
+23:55:55.886        | client: server assigned id 2
+23:55:55.886        | client: got level load message 's1340_thar_aliendebris13'
+23:55:55.889        | reset d3d device
+23:55:56.487        | ReplayManager: stopping activity due to map change
+23:55:56.576        | ====== starting level: 'levels\area2\s1340_thar_aliendebris13' KingOfTheHill client ======
+
+"""

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from logs.base import Log, L_WARNING, Stacktrace
+from .base import Log, L_WARNING, Stacktrace
 import re
 """
     Responsible for Chat Log.

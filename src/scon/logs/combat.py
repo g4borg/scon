@@ -4,21 +4,8 @@
     
     This is the most important part for dealing with actual statistics, since every action taken
     in a combat instance gets logged here.
-    
-    
-    ------------------------------------
-    Note:
-    All logs start with something like
-    23:53:29.137        | LOGDATA 
-    
-    LOGDATA can be quite different depending on the logfile.
-    
-    other forms encountered:
-    23:54:00.600 WARNING| 
-    
-    combat logs:
-    01:04:38.805 CMBT   | 
 """
+
 import re
 from .base import Log, L_CMBT, Stacktrace
 import logging
@@ -409,3 +396,20 @@ COMBAT_LOGS = [ Apply, Damage, Spawn, Spell, Reward, Participant, Rocket, Heal,
                Stacktrace,
                ]
 
+
+"""
+    
+    
+    ------------------------------------
+    Note:
+    All logs start with something like
+    23:53:29.137        | LOGDATA 
+    
+    LOGDATA can be quite different depending on the logfile.
+    
+    other forms encountered:
+    23:54:00.600 WARNING| 
+    
+    combat logs:
+    01:04:38.805 CMBT   | 
+"""

@@ -32,7 +32,7 @@ class CombatLogFile(LogFile):
         return line
 
 class GameLogFile(LogFile):
-    ''' Game Log '''
+    ''' Game Log '''    
     def resolve(self, line):
         for klass in GAME_LOGS:
             if klass.is_handler(line):

@@ -21,16 +21,40 @@ if __name__ == '__main__':
         print (logf.idstr)
         logf.parse_files(['game.log', 'combat.log'])
         
-        if logf.combat_log:
-            print(('length combat log ', len(logf.combat_log.lines)))
-        if logf.game_log:
-            print(('length game log ', len(logf.game_log.lines)))
-        print(battle_factory(logf))
         
-        print ("Cleaning.")
+        battles = battle_factory(logf)
+        
+        if len(battles) < 1:
+            # skip this
+            continue
+        
+        for battle in battles:
+            print(battle.level)
+        
+        combat_log_lines, game_log_lines = (0, 0)
+        
+        if logf.combat_log:
+            combat_log_lines = len(logf.combat_log.lines)
+        if logf.game_log:
+            game_log_lines = len(logf.game_log.lines)
+        
+        preserved = 0
+        for line in logf.game_log.lines:
+            if isinstance(line, dict):
+                continue
+            if not line.trash:
+                preserved += 1
+        print("Actually %s lines should be preserved in game.log on clean..." % preserved)     
+        
         logf.clean()
         if logf.combat_log:
-            print(('length combat log ', len(logf.combat_log.lines)))
+            print('combat.log: %s lines were eliminated during cleaning (%s -> %s)' % ( combat_log_lines - len(logf.combat_log.lines),
+                          combat_log_lines,
+                          len(logf.combat_log.lines),
+                          ) )
         if logf.game_log:
-            print(('length game log ', len(logf.game_log.lines)))
+            print('game.log: %s lines were eliminated during cleaning (%s -> %s)' % ( game_log_lines - len(logf.game_log.lines),
+                          game_log_lines,
+                          len(logf.game_log.lines),
+                          ) )
         

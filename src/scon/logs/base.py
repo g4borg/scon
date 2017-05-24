@@ -56,8 +56,10 @@ class Log(object):
         # datetime.time(hour[, minute[, second[, microsecond[, tzinfo]]]])
         _time = datetime.time( int(self.values.get('hh')),
                                int(self.values.get('mm')),
-                               int(self.values.get('ss'), 0),
+                               int(self.values.get('ss', 0)),
                                int(self.values.get('ns', 0)) )
+        self._timestamp = _time
+        return _time
     
     def unpack(self, force=False):
         ''' unpacks this log from its data and saves values '''
