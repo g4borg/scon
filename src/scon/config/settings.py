@@ -138,6 +138,22 @@ if __name__ == '__main__':
     print('Locale Get Preferred Encoding is ', locale.getpreferredencoding())
     print('File System Encoding is ', sys.getfilesystemencoding())
     
+    
+    print('Expanduser tells me home directory is in %s' % os.path.expanduser('~'))
+    if not os.path.exists(os.path.expanduser('~')):
+        logging.error('Expanduser Folder does not exist.')
+    
+    # winapi
+    import ctypes.wintypes
+    CSIDL = 0x28 # CSIDL_PROFILE
+    SHGFP_TYPE_CURRENT = 0   # Get current, not default value
+    buf= ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
+    ctypes.windll.shell32.SHGetFolderPathW(None, CSIDL, None, SHGFP_TYPE_CURRENT, buf)
+    windows_user_folder = buf.value
+    print('Windows itself tells me its in %s' % windows_user_folder)
+    if not os.path.exists(windows_user_folder):
+        logging.error('Even that Folder does not exist.')
+        
     print('The UserConfig xml is saved as ', settings.detect_encoding(os.path.join(settings.get_config_path(),
                                                'user_config.xml')))
     
