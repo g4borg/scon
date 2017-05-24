@@ -7,13 +7,14 @@ It defines classes for opening logfiles from zips, directories, or as a stream, 
 The Parsing Mechanism
 ---------------------
 In this example, parsing complete files:
-* ``LogSessionCollector`` is a helper class to build sessions from a directory containing many log-directories, i call sessions.
-* ``Session`` represents a container which hold logfiles from the same directory.
+
+* The ``LogSessionCollector`` is a helper class to build sessions from a directory containing many log-directories, i call sessions.
+* The ``Session`` represents a container which hold logfiles from the same directory.
 	- it can open zipped logs aswell as directories
 	- it has a parse_files method which initiates first pass parsing for the given filenames in the package.
 	- only 'game.log', 'combat.log' and 'chat.log' are supported for now as session.game_log, session.combat_log and session.chat_log.
 	- you are able to parse just a subset of those files, e.g. first only game log, later combat or chat.
-* ``Logfile`` class directly has 'lines' property holding all the 'lines from the log'. Each kind of logfile has its own subclass in logfiles.
+* The ``Logfile`` class directly has 'lines' property holding all the 'lines from the log'. Each kind of logfile has its own subclass in logfiles.
 * this ``lines`` list is converted from a string list to dictionaries, containing 'log', 'logtype', and split timestamp data in the first parsing.
   As you might know, this is the same for all logs in SC
 * these dicts are scanned by the class factories and replaced with class based representations of the log packet, coming from their submodule.
