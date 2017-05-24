@@ -236,7 +236,7 @@ def main():
                                                     ]
                             ))
     
-    game.add_ship(Spaceship('Protoss Carrier', modules=[Shields(1000, resistances={None: 0.2, 'kinetic': 0.5, 'phase': 0.0}, recharge=4), 
+    game.add_ship(Spaceship('Protoss Carrier', modules=[Shields(1000, resistances={None: 0.2, 'kinetic': 0.4, 'phase': 0.01}, recharge=1), 
                                                         DefensiveLayer(100, resistances={None: -0.1, 'kinetic': 0.0, 'phase': 0.2}), 
                                                         Weapon(-1, damage=15, cooldown=5, damage_type='phase'), 
                                                         Weapon(-1, damage=15, cooldown=5, damage_type='phase')
