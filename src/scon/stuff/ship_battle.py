@@ -188,12 +188,20 @@ class Spaceship(object):
             if isinstance(mod, ShipModule):
                 mod.update()
 
-class FreeForAll(object):
+class ShipBattle(object):
+    # this is what one calls an abstract class or interface, basicly only defining methods.
+    def add_ship(self, team, ship):
+        pass
+    def run(self):
+        pass
+
+class FreeForAll(ShipBattle):
     def __init__(self):
+        # no need to call parent init since it has no init.
         self.ships = []
         self.running = False
     
-    def add_ship(self, ship):
+    def add_ship(self, team, ship):
         self.ships.append(ship)
         
     def run(self):
@@ -205,18 +213,19 @@ class FreeForAll(object):
             for ship in self.ships:
                 if ship.alive:
                     all_dead = False
+                # even dead ships get the chance to fire a last time:
                 targets = list(set(self.ships))
                 targets.remove(ship)
                 if len(targets) > 0:
                     target = random.choice(targets)
                     print(f'{ship.name} fires at {target.name}!')
                     ship.fire(target)
-                    
                 else:
                     print (f'{ship.name} has won!')
                     return
                 if ship.alive:
                     ship.update()
+            # check should remove all dead ships.
             self.check()
     
     def check(self):
@@ -224,41 +233,106 @@ class FreeForAll(object):
             print("There are no ships left.")
             self.running = False
             return
+        remove_ships = []
         for ship in self.ships:
             if not ship.alive:
                 print(f'The ship {ship.name} is destroyed.')
-                self.ships.remove(ship)
-                continue
+                remove_ships.append(ship)
+        for ship in remove_ships:
+            self.ships.remove(ship)
 
-
+class TeamDeathMatch(ShipBattle):
+    def __init__(self):
+        self.teams = {}
+        
+    def add_ship(self, team, ship):
+        ships = self.teams.get(team, [])
+        ships.append(ship)
+        self.teams[team] = ships
+    
+    def run(self):
+        for team in self.teams.keys():
+            print(f'Spawning team {team}')
+            for ship in self.teams[team]:
+                ship.on_spawn()
+        all_dead = False
+        while not all_dead:
+            all_dead = True
+            for team in self.teams.keys():
+                other_teams = list(set(self.teams.keys()))
+                other_teams.remove(team)
+                if len(other_teams) == 0:
+                    print(f'Team {team} is victorious!')
+                    return
+                for ship in self.teams[team]:
+                    if ship.alive:
+                        all_dead = False
+                        ship.update()
+                    atarget=random.choice(self.teams[random.choice(other_teams)])
+                    print(f'{ship.name} fires at {atarget.name}!')
+                    ship.fire(atarget)
+            if not self.check():
+                return
+    
+    
+    def check(self):
+        if len(self.teams.keys()) == 0:
+            print("There are no ships left.")
+            self.running = False
+            return
+        remove_ships = []
+        for team in self.teams.keys():
+            for ship in self.teams[team]:
+                if not ship.alive:
+                    print(f'The ship {ship.name} is destroyed.')
+                    remove_ships.append((team, ship))
+            
+        for team, ship in remove_ships:
+            self.teams[team].remove(ship)
+        remove_teams = []
+        for team in self.teams.keys():
+            if len(self.teams[team]) == 0:
+                print(f'Team {team} was eliminated.')
+                remove_teams.append(team)
+        for team in remove_teams:
+            del self.teams[team]
+        return True            
+    
 def main():
-    game = FreeForAll()
+    game = TeamDeathMatch()
     
     
-    #game.add_ship(Spaceship('Rocinante', modules=[  Evasion(0.2, default_cooldown=100), 
-    #                                                DefensiveLayer(450, resistances={'kinetic': 0.01, 'phase': 0.4, None: 0.1}), 
-    #                                                Weapon(ammo=1200, damage=12, cooldown=2, damage_type='kinetic'), 
-    #                                                Weapon(ammo=1200, damage=12, cooldown=2, damage_type='kinetic'),
-    #                                                Weapon(ammo=1200, damage=12, cooldown=2, damage_type='kinetic'),
-    #                                                Weapon(ammo=1200, damage=12, cooldown=2, damage_type='kinetic'),
-    #                                                ]
-    #                        ))
+    game.add_ship('Holdens Crew', Spaceship('Rocinante', modules=[  Evasion(0.5, default_cooldown=30), # awesome evasive roci! 
+                                                    DefensiveLayer(450, resistances={'kinetic': 0.2, 'phase': 0.45, None: 0.1}), 
+                                                    Weapon(ammo=3200, damage=8, cooldown=1, damage_type='kinetic'), 
+                                                    Weapon(ammo=1200, damage=12, cooldown=2, damage_type='kinetic'),
+                                                    Weapon(ammo=3200, damage=8, cooldown=1, damage_type='kinetic'),
+                                                    Weapon(ammo=1200, damage=12, cooldown=2, damage_type='kinetic'),
+                                                    ]
+                            ))
     
-    #game.add_ship(Spaceship('Protoss Carrier', modules=[Shields(1000, resistances={None: 0.2, 'kinetic': 0.4, 'phase': 0.01}, recharge=1), 
-    #                                                    DefensiveLayer(100, resistances={None: -0.1, 'kinetic': 0.0, 'phase': 0.2}), 
-    #                                                    Weapon(-1, damage=15, cooldown=5, damage_type='phase'), 
-    #                                                    Weapon(-1, damage=15, cooldown=5, damage_type='phase')
-    #                                                    ]))
+    game.add_ship('Protoss', Spaceship('Protoss Carrier', modules=[Shields(1000, resistances={None: 0.2, 'kinetic': 0.4, 'phase': 0.01}, recharge=4), 
+                                                        DefensiveLayer(100, resistances={None: -0.1, 'kinetic': 0.0, 'phase': 0.2}), 
+                                                        Weapon(-1, damage=15, cooldown=5, damage_type='phase'), 
+                                                        Weapon(-1, damage=15, cooldown=5, damage_type='phase'),
+                                                        Weapon(-1, damage=140, cooldown=60, damage_type='phase'),
+                                                        ]))
     
-    # and add 100 raptors.
-    for x in range(1, 100):
-        game.add_ship(Spaceship(f'Raptor {x}', modules=[Shields(100, recharge=0.2, resistances={'kinetic': 0.2}),
+    # add small ships in 2 teams.
+    for x in range(1, 8):
+        game.add_ship(1, Spaceship(f'Raptor {x}', modules=[Shields(100, recharge=0.2, resistances={'kinetic': 0.2}),
                                                         Evasion(0.05), # evade once shields are down! 
                                                         DefensiveLayer(50, resistances={'phase': 0.25}), 
-                                                        Weapon(ammo=120,damage=10, cooldown=5, damage_type='kinetic'), 
+                                                        Weapon(ammo=1200,damage=10, cooldown=5, damage_type='kinetic'), 
                                                         Weapon(ammo=120,damage=10, cooldown=5, damage_type='kinetic'),
-                                                        Weapon(ammo=12, damage=40, cooldown=100, damage_type='phase')]))
-    
+                                                        Weapon(ammo=50, damage=40, cooldown=1000, damage_type='phase')]))
+    for x in range(1, 8):
+        game.add_ship(2, Spaceship(f'Barracuda {x}', modules=[Shields(100, recharge=0.2, resistances={'kinetic': 0.2}),
+                                                        Evasion(0.05), # evade once shields are down! 
+                                                        DefensiveLayer(50, resistances={'phase': 0.25}), 
+                                                        Weapon(ammo=1200,damage=10, cooldown=5, damage_type='kinetic'), 
+                                                        Weapon(ammo=120,damage=10, cooldown=5, damage_type='kinetic'),
+                                                        Weapon(ammo=50, damage=40, cooldown=1000, damage_type='phase')]))
     game.run()
 
 if __name__ == '__main__':
